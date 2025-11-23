@@ -1,0 +1,241 @@
+---
+import type { ExchangeRate } from "../utils/api";
+
+interface Props {
+    rates: ExchangeRate[];
+}
+
+const { rates } = Astro.props;
+---
+
+<div class="converter glass-card">
+    <h2 class="converter-title">Convertidor de Divisas</h2>
+    <p class="converter-description">
+        Convierte entre bolívares y divisas extranjeras
+    </p>
+
+    <div class="converter-form">
+        <div class="input-group">
+            <label for="amount" class="input-label">Monto</label>
+            <input
+                type="number"
+                id="amount"
+                class="input-field"
+                placeholder="0.00"
+                value="1"
+                min="0"
+                step="0.01"
+            />
+        </div>
+
+        <div class="input-group">
+            <label for="currency" class="input-label">Divisa</label>
+            <select id="currency" class="input-field">
+                {
+                    rates.map((rate) => (
+                        <option value={`${rate.code}:${rate.rate}`}>
+                            {rate.name} ({rate.symbol})
+                        </option>
+                    ))
+                }
+            </select>
+        </div>
+
+        <button id="swap-btn" class="swap-btn" title="Invertir conversión">
+            <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+            >
+                <path d="M7 16V4M7 4L3 8M7 4L11 8"></path>
+                <path d="M17 8V20M17 20L21 16M17 20L13 16"></path>
+            </svg>
+        </button>
+
+        <div class="result-group">
+            <label class="input-label">Resultado</label>
+            <div class="result-display" id="result">Bs. 0.00</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Currency converter logic
+    let isReversed = false;
+
+    const amountInput = document.getElementById("amount") as HTMLInputElement;
+    const currencySelect = document.getElementById(
+        "currency",
+    ) as HTMLSelectElement;
+    const swapBtn = document.getElementById("swap-btn") as HTMLButtonElement;
+    const resultDisplay = document.getElementById("result") as HTMLDivElement;
+
+    function formatBs(amount: number): string {
+        return new Intl.NumberFormat("es-VE", {
+            style: "currency",
+            currency: "VES",
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(amount);
+    }
+
+    function formatCurrency(amount: number, symbol: string): string {
+        return `${symbol}${new Intl.NumberFormat("es-VE", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(amount)}`;
+    }
+
+    function convert() {
+        const amount = parseFloat(amountInput.value) || 0;
+        const [code, rateStr] = currencySelect.value.split(":");
+        const rate = parseFloat(rateStr);
+
+        // Get currency symbol
+        const selectedOption =
+            currencySelect.options[currencySelect.selectedIndex];
+        const symbolMatch = selectedOption.text.match(/\((.)\)/);
+        const symbol = symbolMatch ? symbolMatch[1] : "$";
+
+        let result: number;
+        let resultText: string;
+
+        if (isReversed) {
+            // Bs to Foreign Currency
+            result = amount / rate;
+            resultText = formatCurrency(result, symbol);
+        } else {
+            // Foreign Currency to Bs
+            result = amount * rate;
+            resultText = formatBs(result);
+        }
+
+        resultDisplay.textContent = resultText;
+        resultDisplay.classList.add("pulse");
+        setTimeout(() => resultDisplay.classList.remove("pulse"), 600);
+    }
+
+    function swap() {
+        isReversed = !isReversed;
+        swapBtn.classList.toggle("reversed");
+
+        // Update labels
+        const labels = document.querySelectorAll(".input-label");
+        if (isReversed) {
+            labels[0].textContent = "Monto en Bs";
+            labels[2].textContent = "Resultado en Divisa";
+        } else {
+            labels[0].textContent = "Monto";
+            labels[2].textContent = "Resultado";
+        }
+
+        convert();
+    }
+
+    // Event listeners
+    amountInput.addEventListener("input", convert);
+    currencySelect.addEventListener("change", convert);
+    swapBtn.addEventListener("click", swap);
+
+    // Initial conversion
+    convert();
+</script>
+
+<style>
+    .converter {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .converter-title {
+        font-size: 1.75rem;
+        text-align: center;
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .converter-description {
+        text-align: center;
+        color: var(--color-text-muted);
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .converter-form {
+        display: grid;
+        gap: var(--spacing-lg);
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .input-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+    }
+
+    .input-field {
+        font-size: 1.1rem;
+        padding: var(--spacing-md);
+    }
+
+    .swap-btn {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--gradient-primary);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        transition: all var(--transition-base);
+        box-shadow: var(--shadow-md);
+    }
+
+    .swap-btn:hover {
+        transform: scale(1.1);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .swap-btn.reversed {
+        transform: rotate(180deg);
+    }
+
+    .swap-btn.reversed:hover {
+        transform: rotate(180deg) scale(1.1);
+    }
+
+    .result-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .result-display {
+        font-size: 2rem;
+        font-weight: 700;
+        padding: var(--spacing-lg);
+        background: var(--gradient-card);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        text-align: center;
+        background: var(--gradient-success);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    @media (max-width: 640px) {
+        .result-display {
+            font-size: 1.5rem;
+        }
+    }
+</style>

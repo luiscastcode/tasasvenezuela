@@ -1,0 +1,143 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3 class="footer-title">Tasas Al Día en Venezuela</h3>
+                <p class="footer-text">
+                    Información actualizada sobre las tasas de cambio en
+                    Venezuela.
+                </p>
+            </div>
+
+            <div class="footer-section">
+                <h4 class="footer-subtitle">Legal</h4>
+                <ul class="footer-links">
+                    <li>
+                        <a href="/terminos-de-servicio">Términos de Servicio</a>
+                    </li>
+                    <li>
+                        <a href="/politica-de-privacidad"
+                            >Política de Privacidad</a
+                        >
+                    </li>
+                    <li>
+                        <a href="/politica-de-cookies">Política de Cookies</a>
+                    </li>
+                    <li>
+                        <a href="/descargo-de-responsabilidad"
+                            >Descargo de Responsabilidad</a
+                        >
+                    </li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4 class="footer-subtitle">Información</h4>
+                <p class="footer-text small">
+                    Los datos mostrados son de carácter informativo y provienen
+                    de fuentes públicas. No constituyen información oficial ni
+                    asesoría financiera.
+                </p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p class="copyright">
+                © {currentYear} Tasas Venezuela. Todos los derechos reservados.
+            </p>
+        </div>
+    </div>
+</footer>
+
+<style>
+    .footer {
+        margin-top: var(--spacing-2xl);
+        padding: var(--spacing-2xl) 0 var(--spacing-lg);
+        border-top: 1px solid var(--color-border);
+        background: var(--color-bg-secondary);
+    }
+
+    .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--spacing-xl);
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .footer-section {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .footer-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .footer-subtitle {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .footer-text {
+        color: var(--color-text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .footer-text.small {
+        font-size: 0.85rem;
+        color: var(--color-text-muted);
+    }
+
+    .footer-links {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .footer-links a {
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all var(--transition-base);
+    }
+
+    .footer-links a:hover {
+        color: var(--color-accent-primary);
+        padding-left: var(--spacing-xs);
+    }
+
+    .footer-bottom {
+        padding-top: var(--spacing-lg);
+        border-top: 1px solid var(--color-border);
+        text-align: center;
+    }
+
+    .copyright {
+        color: var(--color-text-muted);
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    @media (max-width: 640px) {
+        .footer-content {
+            grid-template-columns: 1fr;
+            gap: var(--spacing-lg);
+        }
+    }
+</style>

@@ -1,0 +1,117 @@
+---
+
+---
+
+<header class="header">
+    <div class="container">
+        <nav class="nav">
+            <a href="/" class="logo">
+                <span class="logo-icon">💱</span>
+                <span class="logo-text">Tasas Venezuela</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="/" class="nav-link">Inicio</a>
+                <a href="/terminos-de-servicio" class="nav-link">Términos</a>
+                <a href="/politica-de-privacidad" class="nav-link">Privacidad</a
+                >
+                <a href="/descargo-de-responsabilidad" class="nav-link"
+                    >Descargo</a
+                >
+            </div>
+        </nav>
+    </div>
+</header>
+
+<style>
+    .header {
+        padding: var(--spacing-lg) 0;
+        border-bottom: 1px solid var(--color-border);
+        background: rgba(10, 14, 26, 0.8);
+        backdrop-filter: blur(10px);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        text-decoration: none;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--color-text-primary);
+        transition: all var(--transition-base);
+    }
+
+    .logo:hover {
+        transform: scale(1.05);
+    }
+
+    .logo-icon {
+        font-size: 1.5rem;
+        filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
+    }
+
+    .logo-text {
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: var(--spacing-lg);
+        align-items: center;
+    }
+
+    .nav-link {
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all var(--transition-base);
+        position: relative;
+    }
+
+    .nav-link::after {
+        content: "";
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: var(--gradient-primary);
+        transition: width var(--transition-base);
+    }
+
+    .nav-link:hover {
+        color: var(--color-text-primary);
+    }
+
+    .nav-link:hover::after {
+        width: 100%;
+    }
+
+    @media (max-width: 768px) {
+        .nav-links {
+            gap: var(--spacing-sm);
+        }
+
+        .nav-link {
+            font-size: 0.85rem;
+        }
+
+        .logo-text {
+            display: none;
+        }
+    }
+</style>

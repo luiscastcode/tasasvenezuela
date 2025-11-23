@@ -1,0 +1,435 @@
+---
+import type { ExchangeRate } from "../utils/api";
+
+interface Props {
+    rates: ExchangeRate[];
+}
+
+const { rates } = Astro.props;
+---
+
+<div class="calculator glass-card" data-rates={JSON.stringify(rates)}>
+    <h2 class="calculator-title">Calculadora de Precios</h2>
+    <p class="calculator-description">
+        Si eres comerciante puedes calcular el precio de venta de tu producto
+        con margen de ganancia deseado
+    </p>
+
+    <div class="calculator-form">
+        <div class="input-row">
+            <div class="input-group flex-1">
+                <label for="cost" class="input-label">Costo del Producto</label>
+                <input
+                    type="number"
+                    id="cost"
+                    class="input-field"
+                    placeholder="0.00"
+                    value="100"
+                    min="0"
+                    step="0.01"
+                />
+            </div>
+
+            <div class="input-group" style="min-width: 150px;">
+                <label for="cost-currency" class="input-label"
+                    >Divisa del Costo</label
+                >
+                <select id="cost-currency" class="input-field">
+                    <option value="VES:1">Bolívares (Bs)</option>
+                    {
+                        rates.map((rate) => (
+                            <option value={`${rate.code}:${rate.rate}`}>
+                                {rate.code} ({rate.symbol})
+                            </option>
+                        ))
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <div class="margin-header">
+                <label for="margin" class="input-label"
+                    >Margen de Ganancia Deseado (%)</label
+                >
+                <span class="margin-value" id="margin-display">30%</span>
+            </div>
+            <input
+                type="range"
+                id="margin"
+                class="slider"
+                min="0"
+                max="35"
+                value="30"
+                step="1"
+            />
+            <div class="slider-labels">
+                <span>0%</span>
+                <span>35%</span>
+            </div>
+        </div>
+
+        <div class="results">
+            <div class="result-item">
+                <span class="result-label">Costo en Bs:</span>
+                <span class="result-value" id="cost-bs">Bs. 100.00</span>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Ganancia:</span>
+                <span class="result-value success" id="profit">Bs. 42.86</span>
+            </div>
+
+            <div class="result-item highlight">
+                <span class="result-label">Precio de Venta en Bs:</span>
+                <span class="result-value large" id="sale-price-bs"
+                    >Bs. 142.86</span
+                >
+            </div>
+
+            <div class="currency-prices">
+                <h3 class="currency-prices-title">
+                    Precios a Publicar por Divisa
+                </h3>
+                <div class="currency-grid" id="currency-grid">
+                    <!-- Currency prices will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Get rates from data attribute
+    const calculatorElement = document.querySelector(
+        ".calculator",
+    ) as HTMLElement;
+    const ratesData = calculatorElement?.dataset.rates;
+    const rates = ratesData ? JSON.parse(ratesData) : [];
+
+    const costInput = document.getElementById("cost") as HTMLInputElement;
+    const costCurrencySelect = document.getElementById(
+        "cost-currency",
+    ) as HTMLSelectElement;
+    const marginSlider = document.getElementById("margin") as HTMLInputElement;
+    const marginDisplay = document.getElementById(
+        "margin-display",
+    ) as HTMLSpanElement;
+    const costBsDisplay = document.getElementById("cost-bs") as HTMLSpanElement;
+    const profitDisplay = document.getElementById("profit") as HTMLSpanElement;
+    const salePriceBsDisplay = document.getElementById(
+        "sale-price-bs",
+    ) as HTMLSpanElement;
+    const currencyGrid = document.getElementById(
+        "currency-grid",
+    ) as HTMLDivElement;
+
+    function formatBs(amount: number): string {
+        return new Intl.NumberFormat("es-VE", {
+            style: "currency",
+            currency: "VES",
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(amount);
+    }
+
+    function formatCurrency(amount: number, decimals: number = 2): string {
+        return new Intl.NumberFormat("es-VE", {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
+        }).format(amount);
+    }
+
+    function calculate() {
+        const cost = parseFloat(costInput.value) || 0;
+        const [currency, rateStr] = costCurrencySelect.value.split(":");
+        const rate = parseFloat(rateStr);
+        const marginPercent = parseFloat(marginSlider.value);
+
+        // Update margin display
+        marginDisplay.textContent = `${marginPercent}%`;
+
+        // Calculate cost in Bs
+        const costInBs = cost * rate;
+
+        // NEW FORMULA: Precio de venta = Costo / (1 – Margen deseado)
+        // Convert margin percentage to decimal (e.g., 30% -> 0.30)
+        const marginDecimal = marginPercent / 100;
+
+        // Calculate sale price using the new formula
+        const salePriceInBs =
+            marginDecimal >= 1 ? 0 : costInBs / (1 - marginDecimal);
+
+        // Calculate profit
+        const profit = salePriceInBs - costInBs;
+
+        // Update main displays
+        costBsDisplay.textContent = formatBs(costInBs);
+        profitDisplay.textContent = formatBs(profit);
+        salePriceBsDisplay.textContent = formatBs(salePriceInBs);
+
+        // Add pulse animation
+        salePriceBsDisplay.classList.add("pulse");
+        setTimeout(() => salePriceBsDisplay.classList.remove("pulse"), 600);
+
+        // Calculate and display prices in all currencies
+        displayCurrencyPrices(salePriceInBs);
+    }
+
+    function displayCurrencyPrices(salePriceInBs: number) {
+        // Clear previous content
+        currencyGrid.innerHTML = "";
+
+        // Create price cards for each currency
+        rates.forEach((rate: any) => {
+            const priceInCurrency = salePriceInBs / rate.rate;
+
+            const card = document.createElement("div");
+            card.className = "currency-card";
+
+            card.innerHTML = `
+                <div class="currency-name">${rate.name}</div>
+                <div class="currency-code">${rate.code}</div>
+                <div class="currency-price">${rate.symbol} ${formatCurrency(priceInCurrency)}</div>
+            `;
+
+            currencyGrid.appendChild(card);
+        });
+    }
+
+    // Event listeners
+    costInput.addEventListener("input", calculate);
+    costCurrencySelect.addEventListener("change", calculate);
+    marginSlider.addEventListener("input", calculate);
+
+    // Initial calculation
+    calculate();
+</script>
+
+<style>
+    .calculator {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .calculator-title {
+        font-size: 1.75rem;
+        text-align: center;
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .calculator-description {
+        text-align: center;
+        color: var(--color-text-muted);
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .calculator-form {
+        display: grid;
+        gap: var(--spacing-xl);
+    }
+
+    .input-row {
+        display: flex;
+        gap: var(--spacing-md);
+    }
+
+    .flex-1 {
+        flex: 1;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .input-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+    }
+
+    .input-field {
+        font-size: 1.1rem;
+        padding: var(--spacing-md);
+    }
+
+    .margin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .margin-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--color-accent-primary);
+    }
+
+    .slider {
+        width: 100%;
+        height: 8px;
+        border-radius: 5px;
+        background: var(--color-bg-secondary);
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--gradient-primary);
+        cursor: pointer;
+        box-shadow: var(--shadow-md);
+        transition: all var(--transition-base);
+    }
+
+    .slider::-webkit-slider-thumb:hover {
+        transform: scale(1.2);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--gradient-primary);
+        cursor: pointer;
+        border: none;
+        box-shadow: var(--shadow-md);
+        transition: all var(--transition-base);
+    }
+
+    .slider::-moz-range-thumb:hover {
+        transform: scale(1.2);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .slider-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+        margin-top: var(--spacing-xs);
+    }
+
+    .results {
+        display: grid;
+        gap: var(--spacing-md);
+        padding: var(--spacing-lg);
+        background: var(--gradient-card);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+    }
+
+    .result-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-sm) 0;
+    }
+
+    .result-item.highlight {
+        padding: var(--spacing-md);
+        background: rgba(59, 130, 246, 0.1);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--color-accent-primary);
+    }
+
+    .result-label {
+        font-size: 1rem;
+        color: var(--color-text-secondary);
+        font-weight: 500;
+    }
+
+    .result-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--color-text-primary);
+    }
+
+    .result-value.success {
+        color: var(--color-accent-success);
+    }
+
+    .result-value.large {
+        font-size: 1.75rem;
+        background: var(--gradient-success);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .currency-prices {
+        margin-top: var(--spacing-lg);
+        padding-top: var(--spacing-lg);
+        border-top: 1px solid var(--color-border);
+    }
+
+    .currency-prices-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+        margin-bottom: var(--spacing-md);
+        text-align: center;
+    }
+
+    .currency-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: var(--spacing-md);
+    }
+
+    .currency-card {
+        background: var(--gradient-card);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-md);
+        text-align: center;
+        transition: all var(--transition-base);
+    }
+
+    .currency-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--color-accent-primary);
+    }
+
+    .currency-name {
+        font-size: 0.85rem;
+        color: var(--color-text-muted);
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .currency-code {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--color-accent-primary);
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .currency-price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--color-text-primary);
+    }
+
+    @media (max-width: 640px) {
+        .input-row {
+            flex-direction: column;
+        }
+
+        .result-value.large {
+            font-size: 1.5rem;
+        }
+
+        .currency-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
