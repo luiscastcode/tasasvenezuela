@@ -20,28 +20,32 @@
 			"dest": "_render"
 		},
 		{
+			"src": "^/api/health/?$",
+			"dest": "_render"
+		},
+		{
 			"src": "^/api/rates/?$",
-			"dest": "/_isr?x_astro_path=$0"
+			"dest": "_render"
 		},
 		{
 			"src": "^/descargo-de-responsabilidad/?$",
-			"dest": "/_isr?x_astro_path=$0"
+			"dest": "_render"
 		},
 		{
 			"src": "^/politica-de-cookies/?$",
-			"dest": "/_isr?x_astro_path=$0"
+			"dest": "_render"
 		},
 		{
 			"src": "^/politica-de-privacidad/?$",
-			"dest": "/_isr?x_astro_path=$0"
+			"dest": "_render"
 		},
 		{
 			"src": "^/terminos-de-servicio/?$",
-			"dest": "/_isr?x_astro_path=$0"
+			"dest": "_render"
 		},
 		{
 			"src": "^/$",
-			"dest": "/_isr?x_astro_path=$0"
+			"dest": "_render"
 		}
 	]
 }

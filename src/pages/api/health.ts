@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async () => {
+    console.log('[Health Check] Endpoint hit');
     return new Response(
         JSON.stringify({
             status: 'ok',
