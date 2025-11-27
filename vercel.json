@@ -1,7 +1,0 @@
-{
-    "functions": {
-        "src/utils/api.ts": {
-            "maxDuration": 10
-        }
-    }
-}
