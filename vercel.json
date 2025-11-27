@@ -1,6 +1,6 @@
 {
     "functions": {
-        "utils/api.ts": {
+        "src/utils/api.ts": {
             "maxDuration": 10
         }
     }
