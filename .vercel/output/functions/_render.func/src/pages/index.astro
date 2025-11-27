@@ -1,0 +1,205 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import ExchangeRateCard from "../components/ExchangeRateCard.astro";
+import CurrencyConverter from "../components/CurrencyConverter.astro";
+import ProfitCalculator from "../components/ProfitCalculator.astro";
+import { getAllRates } from "../utils/api";
+
+// Fetch exchange rates
+const rates = await getAllRates();
+---
+
+<Layout title="Tasas Al Día en Venezuela - Consulta de Tasas">
+  <Header />
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <h1 class="hero-title fade-in">Tasas Al Día en Venezuela</h1>
+        <p class="hero-subtitle fade-in">
+          Consulta las tasas actualizadas del Dólar BCV, Euro BCV y USDT en
+          tiempo real
+        </p>
+      </div>
+    </section>
+
+    <!-- Exchange Rates Section -->
+    <section class="rates-section">
+      <div class="container">
+        <div class="grid grid-cols-3">
+          {rates.map((rate) => <ExchangeRateCard rate={rate} />)}
+        </div>
+      </div>
+    </section>
+
+    <!-- Currency Converter Section -->
+    <section class="converter-section">
+      <div class="container">
+        <CurrencyConverter rates={rates} />
+      </div>
+    </section>
+    <section class="info-banner">
+      <div class="container">
+        <div class="cta-section">
+          <div class="cta-box">
+            <img src="img/bybit.png" alt="Bybit" />
+
+            <p>
+              Unete a Bybit y compra USDT a un precio excelente para resgurdar
+              tus bolivares.
+            </p>
+            <a
+              href="https://www.bybit.com/invite?ref=Y8MB0PP"
+              class="btn btn-primary"
+              target="_blank"
+            >
+              Unete a Bybit
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Profit Calculator Section -->
+    <section class="calculator-section">
+      <div class="container">
+        <ProfitCalculator rates={rates} />
+      </div>
+    </section>
+
+    <!-- Info Banner -->
+    <section class="info-banner">
+      <div class="container">
+        <div class="banner-content glass-card">
+          <div class="banner-icon">⚠️</div>
+          <div class="banner-text">
+            <h3>Información Importante</h3>
+            <p>
+              Los datos mostrados son de carácter informativo y provienen de
+              fuentes públicas. No constituyen información oficial ni asesoría
+              financiera.
+              <a href="/descargo-de-responsabilidad">Leer más</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  .hero {
+    padding: var(--spacing-2xl) 0;
+    text-align: center;
+  }
+
+  .hero-title {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-md);
+    animation: fadeIn 0.8s ease-out;
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--color-text-secondary);
+    max-width: 700px;
+    margin: 0 auto;
+    animation: fadeIn 1s ease-out 0.2s backwards;
+  }
+
+  .rates-section {
+    padding: var(--spacing-xl) 0;
+  }
+
+  .converter-section,
+  .calculator-section {
+    padding: var(--spacing-2xl) 0;
+  }
+
+  .info-banner {
+    padding: var(--spacing-2xl) 0;
+  }
+
+  .banner-content {
+    display: flex;
+    gap: var(--spacing-lg);
+    align-items: flex-start;
+    background: rgba(245, 158, 11, 0.1) !important;
+    border-color: var(--color-accent-warning);
+  }
+
+  .banner-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+  }
+
+  .banner-text h3 {
+    color: var(--color-accent-warning);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .banner-text p {
+    color: var(--color-text-secondary);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .banner-text a {
+    color: var(--color-accent-primary);
+    text-decoration: underline;
+    transition: color var(--transition-base);
+  }
+
+  .banner-text a:hover {
+    color: var(--color-accent-secondary);
+  }
+
+  .cta-section {
+    margin: var(--spacing-2xl) 0;
+  }
+
+  .cta-box {
+    text-align: center;
+    padding: var(--spacing-xl);
+    background: var(--gradient-card);
+    border: 2px solid var(--color-accent-success);
+    border-radius: var(--radius-xl);
+  }
+
+  .cta-box h3 {
+    font-size: 1.75rem;
+    margin-bottom: var(--spacing-md);
+    color: var(--color-accent-success);
+  }
+
+  .cta-box p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: var(--spacing-xl);
+    color: var(--color-text-primary);
+  }
+
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1rem;
+    }
+
+    .banner-content {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .banner-icon {
+      font-size: 2rem;
+    }
+  }
+</style>

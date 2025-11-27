@@ -1,0 +1,164 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Layout title="Términos de Servicio - Tasas Venezuela">
+    <Header />
+
+    <main>
+        <section class="legal-page">
+            <div class="container">
+                <div class="legal-content glass-card">
+                    <h1>Términos de Servicio</h1>
+                    <p class="last-updated">
+                        Última actualización: Noviembre 2025
+                    </p>
+
+                    <h2>1. Aceptación de los Términos</h2>
+                    <p>
+                        Al acceder y utilizar Tasas Venezuela, usted acepta
+                        estar sujeto a estos Términos de Servicio. Si no está de
+                        acuerdo con alguna parte de estos términos, no debe
+                        utilizar nuestro sitio web.
+                    </p>
+
+                    <h2>2. Descripción del Servicio</h2>
+                    <p>
+                        Tasas Venezuela proporciona información sobre las tasas
+                        de cambio en Venezuela, incluyendo el Dólar BCV, Euro
+                        BCV y USDT. También ofrecemos herramientas de conversión
+                        de divisas y calculadoras de precios para comerciantes.
+                    </p>
+
+                    <h2>3. Uso del Servicio</h2>
+                    <p>Usted se compromete a:</p>
+                    <ul>
+                        <li>Utilizar el servicio solo para fines legales</li>
+                        <li>
+                            No intentar acceder a áreas restringidas del sitio
+                        </li>
+                        <li>
+                            No interferir con el funcionamiento del servicio
+                        </li>
+                        <li>
+                            No utilizar el servicio para actividades
+                            fraudulentas
+                        </li>
+                    </ul>
+
+                    <h2>4. Información Proporcionada</h2>
+                    <p>
+                        La información de tasas de cambio se proporciona "tal
+                        cual" y proviene de fuentes públicas. No garantizamos la
+                        exactitud, integridad o actualidad de la información.
+                        Los usuarios deben verificar la información con fuentes
+                        oficiales antes de tomar decisiones financieras.
+                    </p>
+
+                    <h2>5. Limitación de Responsabilidad</h2>
+                    <p>
+                        Tasas Venezuela no será responsable por ningún daño
+                        directo, indirecto, incidental, consecuente o punitivo
+                        que resulte del uso o la imposibilidad de usar nuestro
+                        servicio. Esto incluye, pero no se limita a, pérdidas
+                        financieras basadas en la información proporcionada.
+                    </p>
+
+                    <h2>6. Propiedad Intelectual</h2>
+                    <p>
+                        Todo el contenido del sitio, incluyendo texto, gráficos,
+                        logos y software, es propiedad de Tasas Venezuela o sus
+                        proveedores de contenido y está protegido por las leyes
+                        de propiedad intelectual.
+                    </p>
+
+                    <h2>7. Enlaces a Terceros</h2>
+                    <p>
+                        Nuestro sitio puede contener enlaces a sitios web de
+                        terceros. No somos responsables del contenido o las
+                        prácticas de privacidad de estos sitios externos.
+                    </p>
+
+                    <h2>8. Modificaciones del Servicio</h2>
+                    <p>
+                        Nos reservamos el derecho de modificar o discontinuar el
+                        servicio en cualquier momento, temporal o
+                        permanentemente, con o sin previo aviso.
+                    </p>
+
+                    <h2>9. Modificaciones de los Términos</h2>
+                    <p>
+                        Podemos actualizar estos Términos de Servicio
+                        periódicamente. Le notificaremos sobre cambios
+                        significativos publicando los nuevos términos en esta
+                        página.
+                    </p>
+
+                    <h2>10. Ley Aplicable</h2>
+                    <p>
+                        Estos términos se regirán e interpretarán de acuerdo con
+                        las leyes de la República Bolivariana de Venezuela.
+                    </p>
+
+                    <h2>11. Contacto</h2>
+                    <p>
+                        Si tiene preguntas sobre estos Términos de Servicio,
+                        puede contactarnos a través de nuestro sitio web.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <Footer />
+</Layout>
+
+<style>
+    .legal-page {
+        padding: var(--spacing-2xl) 0;
+        min-height: 70vh;
+    }
+
+    .legal-content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .legal-content h1 {
+        font-size: 2.5rem;
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .last-updated {
+        color: var(--color-text-muted);
+        font-style: italic;
+        margin-bottom: var(--spacing-xl);
+        padding-bottom: var(--spacing-lg);
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .legal-content h2 {
+        font-size: 1.5rem;
+        margin-top: var(--spacing-xl);
+        margin-bottom: var(--spacing-md);
+        color: var(--color-accent-primary);
+    }
+
+    .legal-content p {
+        line-height: 1.8;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .legal-content ul {
+        margin-left: var(--spacing-xl);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .legal-content li {
+        color: var(--color-text-secondary);
+        line-height: 1.8;
+        margin-bottom: var(--spacing-xs);
+    }
+</style>
