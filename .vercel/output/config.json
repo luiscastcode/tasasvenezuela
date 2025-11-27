@@ -21,27 +21,27 @@
 		},
 		{
 			"src": "^/api/rates/?$",
-			"dest": "_render"
+			"dest": "/_isr?x_astro_path=$0"
 		},
 		{
 			"src": "^/descargo-de-responsabilidad/?$",
-			"dest": "_render"
+			"dest": "/_isr?x_astro_path=$0"
 		},
 		{
 			"src": "^/politica-de-cookies/?$",
-			"dest": "_render"
+			"dest": "/_isr?x_astro_path=$0"
 		},
 		{
 			"src": "^/politica-de-privacidad/?$",
-			"dest": "_render"
+			"dest": "/_isr?x_astro_path=$0"
 		},
 		{
 			"src": "^/terminos-de-servicio/?$",
-			"dest": "_render"
+			"dest": "/_isr?x_astro_path=$0"
 		},
 		{
 			"src": "^/$",
-			"dest": "_render"
+			"dest": "/_isr?x_astro_path=$0"
 		}
 	]
 }

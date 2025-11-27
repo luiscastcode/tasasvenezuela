@@ -1,10 +1,24 @@
+async function fetchWithTimeout(url, timeout = 8e3) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
+}
 async function getBCVDollarRate() {
   try {
-    const response = await fetch("https://ve.dolarapi.com/v1/dolares/oficial");
+    console.log("[API] Fetching BCV Dollar rate...");
+    const response = await fetchWithTimeout("https://ve.dolarapi.com/v1/dolares/oficial");
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
+    console.log("[API] BCV Dollar rate fetched successfully:", data.promedio || data.precio);
     return {
       name: "Dólar BCV",
       code: "USD",
@@ -13,7 +27,7 @@ async function getBCVDollarRate() {
       symbol: "$"
     };
   } catch (error) {
-    console.error("Error fetching BCV Dollar rate:", error);
+    console.error("[API] Error fetching BCV Dollar rate:", error);
     return {
       name: "Dólar BCV",
       code: "USD",
@@ -23,16 +37,22 @@ async function getBCVDollarRate() {
     };
   }
 }
-async function getBCVEuroRate() {
+async function getBCVEuroRate(bcvDollarRate) {
   try {
-    const bcvDollar = await getBCVDollarRate();
-    const response = await fetch("https://api.exchangerate-api.com/v4/latest/USD");
+    console.log("[API] Fetching Euro rate...");
+    let bcvRate = bcvDollarRate;
+    if (!bcvRate) {
+      const bcvDollar = await getBCVDollarRate();
+      bcvRate = bcvDollar.rate;
+    }
+    const response = await fetchWithTimeout("https://api.exchangerate-api.com/v4/latest/USD");
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
     const usdToEur = data.rates.EUR || 0.92;
-    const euroRate = bcvDollar.rate / usdToEur;
+    const euroRate = bcvRate / usdToEur;
+    console.log("[API] Euro rate calculated successfully:", euroRate);
     return {
       name: "Euro BCV",
       code: "EUR",
@@ -41,7 +61,7 @@ async function getBCVEuroRate() {
       symbol: "€"
     };
   } catch (error) {
-    console.error("Error fetching Euro rate:", error);
+    console.error("[API] Error fetching Euro rate:", error);
     return {
       name: "Euro BCV",
       code: "EUR",
@@ -53,23 +73,23 @@ async function getBCVEuroRate() {
 }
 async function getUSDTRate() {
   try {
-    const bcvDollar = await getBCVDollarRate();
-    const response = await fetch("https://ve.dolarapi.com/v1/dolares/paralelo");
+    console.log("[API] Fetching USDT rate...");
+    const response = await fetchWithTimeout("https://ve.dolarapi.com/v1/dolares/paralelo");
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    const usdtInUsd = data.tether?.usd || 1;
-    const usdtRate = usdtInUsd * bcvDollar.rate;
+    const rate = data.promedio || data.precio || 0;
+    console.log("[API] USDT rate fetched successfully:", rate);
     return {
       name: "USDT (Bybit)",
       code: "USDT",
-      rate: data.promedio || data.precio || 0,
+      rate,
       lastUpdate: data.fechaActualizacion || (/* @__PURE__ */ new Date()).toISOString(),
       symbol: "₮"
     };
   } catch (error) {
-    console.error("Error fetching USDT rate:", error);
+    console.error("[API] Error fetching USDT rate:", error);
     return {
       name: "USDT (Bybit)",
       code: "USDT",
@@ -81,14 +101,17 @@ async function getUSDTRate() {
 }
 async function getAllRates() {
   try {
-    const [bcvDollar, bcvEuro, usdt] = await Promise.all([
-      getBCVDollarRate(),
-      getBCVEuroRate(),
+    console.log("[API] Fetching all rates...");
+    const bcvDollar = await getBCVDollarRate();
+    const [bcvEuro, usdt] = await Promise.all([
+      getBCVEuroRate(bcvDollar.rate),
       getUSDTRate()
     ]);
-    return [bcvDollar, usdt, bcvEuro];
+    const rates = [bcvDollar, usdt, bcvEuro];
+    console.log("[API] All rates fetched successfully");
+    return rates;
   } catch (error) {
-    console.error("Error fetching all rates:", error);
+    console.error("[API] Error fetching all rates:", error);
     return [];
   }
 }

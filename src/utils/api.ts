@@ -9,17 +9,36 @@ export interface ExchangeRate {
 }
 
 /**
+ * Fetch with timeout to prevent hanging requests
+ */
+async function fetchWithTimeout(url: string, timeout = 8000): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
+}
+
+/**
  * Fetch BCV Dollar rate from DolarApi.com
  */
 export async function getBCVDollarRate(): Promise<ExchangeRate> {
   try {
-    const response = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
+    console.log('[API] Fetching BCV Dollar rate...');
+    const response = await fetchWithTimeout('https://ve.dolarapi.com/v1/dolares/oficial');
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('[API] BCV Dollar rate fetched successfully:', data.promedio || data.precio);
 
     return {
       name: 'Dólar BCV',
@@ -29,7 +48,7 @@ export async function getBCVDollarRate(): Promise<ExchangeRate> {
       symbol: '$'
     };
   } catch (error) {
-    console.error('Error fetching BCV Dollar rate:', error);
+    console.error('[API] Error fetching BCV Dollar rate:', error);
     // Return fallback data
     return {
       name: 'Dólar BCV',
@@ -44,13 +63,19 @@ export async function getBCVDollarRate(): Promise<ExchangeRate> {
 /**
  * Fetch Euro rate (calculated from USD/EUR conversion + BCV dollar rate)
  */
-export async function getBCVEuroRate(): Promise<ExchangeRate> {
+export async function getBCVEuroRate(bcvDollarRate?: number): Promise<ExchangeRate> {
   try {
-    // Get BCV Dollar rate first
-    const bcvDollar = await getBCVDollarRate();
+    console.log('[API] Fetching Euro rate...');
+
+    // Use provided BCV rate or fetch it
+    let bcvRate = bcvDollarRate;
+    if (!bcvRate) {
+      const bcvDollar = await getBCVDollarRate();
+      bcvRate = bcvDollar.rate;
+    }
 
     // Get USD/EUR exchange rate from a free API
-    const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+    const response = await fetchWithTimeout('https://api.exchangerate-api.com/v4/latest/USD');
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -60,7 +85,8 @@ export async function getBCVEuroRate(): Promise<ExchangeRate> {
     const usdToEur = data.rates.EUR || 0.92; // Fallback to approximate rate
 
     // Calculate Euro in Bs: (BCV Dollar rate) / (USD to EUR rate)
-    const euroRate = bcvDollar.rate / usdToEur;
+    const euroRate = bcvRate / usdToEur;
+    console.log('[API] Euro rate calculated successfully:', euroRate);
 
     return {
       name: 'Euro BCV',
@@ -70,7 +96,7 @@ export async function getBCVEuroRate(): Promise<ExchangeRate> {
       symbol: '€'
     };
   } catch (error) {
-    console.error('Error fetching Euro rate:', error);
+    console.error('[API] Error fetching Euro rate:', error);
     return {
       name: 'Euro BCV',
       code: 'EUR',
@@ -82,35 +108,30 @@ export async function getBCVEuroRate(): Promise<ExchangeRate> {
 }
 
 /**
- * Fetch USDT rate (using free alternative: crypto price API + BCV rate)
+ * Fetch USDT rate from parallel market (DolarApi)
  */
 export async function getUSDTRate(): Promise<ExchangeRate> {
   try {
-    // Get BCV Dollar rate
-    const bcvDollar = await getBCVDollarRate();
-
-    // Get USDT price in USD from CoinGecko (free API)
-    const response = await fetch('https://ve.dolarapi.com/v1/dolares/paralelo');
+    console.log('[API] Fetching USDT rate...');
+    const response = await fetchWithTimeout('https://ve.dolarapi.com/v1/dolares/paralelo');
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
-    const usdtInUsd = data.tether?.usd || 1; // USDT is typically ~$1
-
-    // Calculate USDT in Bs: USDT price in USD * BCV Dollar rate
-    const usdtRate = usdtInUsd * bcvDollar.rate;
+    const rate = data.promedio || data.precio || 0;
+    console.log('[API] USDT rate fetched successfully:', rate);
 
     return {
       name: 'USDT (Bybit)',
       code: 'USDT',
-      rate: data.promedio || data.precio || 0,
+      rate: rate,
       lastUpdate: data.fechaActualizacion || new Date().toISOString(),
       symbol: '₮'
     };
   } catch (error) {
-    console.error('Error fetching USDT rate:', error);
+    console.error('[API] Error fetching USDT rate:', error);
     return {
       name: 'USDT (Bybit)',
       code: 'USDT',
@@ -126,15 +147,21 @@ export async function getUSDTRate(): Promise<ExchangeRate> {
  */
 export async function getAllRates(): Promise<ExchangeRate[]> {
   try {
-    const [bcvDollar, bcvEuro, usdt] = await Promise.all([
-      getBCVDollarRate(),
-      getBCVEuroRate(),
+    console.log('[API] Fetching all rates...');
+
+    // Fetch BCV Dollar first, then use it for Euro calculation to avoid duplicate calls
+    const bcvDollar = await getBCVDollarRate();
+    const [bcvEuro, usdt] = await Promise.all([
+      getBCVEuroRate(bcvDollar.rate),
       getUSDTRate()
     ]);
 
-    return [bcvDollar, usdt, bcvEuro];
+    const rates = [bcvDollar, usdt, bcvEuro];
+    console.log('[API] All rates fetched successfully');
+
+    return rates;
   } catch (error) {
-    console.error('Error fetching all rates:', error);
+    console.error('[API] Error fetching all rates:', error);
     return [];
   }
 }
