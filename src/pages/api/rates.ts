@@ -1,6 +1,6 @@
 // src/pages/api/rates.ts
 import type { APIRoute } from 'astro';
-import { getAllRates, formatBs, formatCurrency, formatDate } from '../../utils/api.js';
+import { getAllRates, formatBs, formatCurrency, formatDate } from '../../utils/api';
 
 export const GET: APIRoute = async ({ url }) => {
   try {

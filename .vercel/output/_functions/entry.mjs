@@ -1,22 +1,24 @@
 import { renderers } from './renderers.mjs';
 import { c as createExports, s as serverEntrypointModule } from './chunks/_@astrojs-ssr-adapter_DS6w16Ou.mjs';
-import { manifest } from './manifest_FdggUsoj.mjs';
+import { manifest } from './manifest_CVSzvBIl.mjs';
 
 const serverIslandMap = new Map();;
 
 const _page0 = () => import('./pages/_image.astro.mjs');
-const _page1 = () => import('./pages/descargo-de-responsabilidad.astro.mjs');
-const _page2 = () => import('./pages/politica-de-cookies.astro.mjs');
-const _page3 = () => import('./pages/politica-de-privacidad.astro.mjs');
-const _page4 = () => import('./pages/terminos-de-servicio.astro.mjs');
-const _page5 = () => import('./pages/index.astro.mjs');
+const _page1 = () => import('./pages/api/rates.astro.mjs');
+const _page2 = () => import('./pages/descargo-de-responsabilidad.astro.mjs');
+const _page3 = () => import('./pages/politica-de-cookies.astro.mjs');
+const _page4 = () => import('./pages/politica-de-privacidad.astro.mjs');
+const _page5 = () => import('./pages/terminos-de-servicio.astro.mjs');
+const _page6 = () => import('./pages/index.astro.mjs');
 const pageMap = new Map([
     ["node_modules/astro/dist/assets/endpoint/generic.js", _page0],
-    ["src/pages/descargo-de-responsabilidad.astro", _page1],
-    ["src/pages/politica-de-cookies.astro", _page2],
-    ["src/pages/politica-de-privacidad.astro", _page3],
-    ["src/pages/terminos-de-servicio.astro", _page4],
-    ["src/pages/index.astro", _page5]
+    ["src/pages/api/rates.ts", _page1],
+    ["src/pages/descargo-de-responsabilidad.astro", _page2],
+    ["src/pages/politica-de-cookies.astro", _page3],
+    ["src/pages/politica-de-privacidad.astro", _page4],
+    ["src/pages/terminos-de-servicio.astro", _page5],
+    ["src/pages/index.astro", _page6]
 ]);
 
 const _manifest = Object.assign(manifest, {
@@ -27,7 +29,7 @@ const _manifest = Object.assign(manifest, {
     middleware: () => import('./_noop-middleware.mjs')
 });
 const _args = {
-    "middlewareSecret": "bd1a894a-6c2b-4f31-a4bc-aa54a4c48454",
+    "middlewareSecret": "711fe4f6-2e77-466b-8686-cc034d76f2f6",
     "skewProtection": false
 };
 const _exports = createExports(_manifest, _args);
