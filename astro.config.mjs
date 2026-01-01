@@ -8,5 +8,6 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   output: 'server',
   adapter: vercel(),
+  site: "https://tasasvenezuela.vercel.app",
   integrations: [sitemap()],
 });

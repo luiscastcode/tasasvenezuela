@@ -11,7 +11,11 @@ import { getAllRates } from "../utils/api";
 const rates = await getAllRates();
 ---
 
-<Layout title="Tasas Al Día en Venezuela - Consulta de Tasas">
+<Layout
+  metatitle="Tasas Al Día en Venezuela - Consulta de Tasas"
+  metadescrip="Consulta las tasas actualizadas del Dólar BCV, Euro BCV y USDT en tiempo real"
+  slug=""
+>
   <Header />
 
   <main>
@@ -48,7 +52,7 @@ const rates = await getAllRates();
             <img src="img/bybit.png" alt="Bybit" />
 
             <p>
-              Unete a Bybit y compra USDT a un precio excelente para resgurdar
+              Unete a Bybit y compra USDT a un precio excelente para resguardar
               tus bolivares.
             </p>
             <a
@@ -81,7 +85,7 @@ const rates = await getAllRates();
               Los datos mostrados son de carácter informativo y provienen de
               fuentes públicas. No constituyen información oficial ni asesoría
               financiera.
-              <a href="/descargo-de-responsabilidad">Leer más</a>
+              <a href="/descargo-de-responsabilidad/">Leer más</a>
             </p>
           </div>
         </div>

@@ -3,14 +3,12 @@ import "../styles/global.css";
 import Analytics from "@vercel/analytics/astro";
 
 interface Props {
-  title: string;
-  description?: string;
+  metatitle: string;
+  metadescrip: string;
+  slug: string;
 }
 
-const {
-  title,
-  description = "Consulta las tasas de cambio del día en Venezuela: Dólar BCV, Euro BCV y USDT. Convierte divisas y calcula precios con margen de ganancia.",
-} = Astro.props;
+const { metatitle, metadescrip, slug } = Astro.props;
 ---
 
 <!doctype html>
@@ -33,11 +31,11 @@ const {
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={description} />
-    <meta name="generator" content={Astro.generator} />
-
+    <meta name="description" content={metadescrip} />
+    <meta name="robots" content="all" />
     <!-- SEO Meta Tags -->
     <meta name="author" content="Tasas Venezuela" />
+    <link rel="canonical" href={`https://tasasvenezuela.vercel.app/${slug}`} />
     <meta
       name="keywords"
       content="dólar, euro, USDT, BCV, Venezuela, tasas de cambio, bolívares, conversión de divisas"
@@ -45,16 +43,25 @@ const {
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:title" content={metatitle} />
+    <meta property="og:description" content={metadescrip} />
+    <meta
+      property="og:url"
+      content={`https://tasasvenezuela.vercel.app/${slug}`}
+    />
+    <meta property="og:type" content="website" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:title" content={metatitle} />
+    <meta name="twitter:description" content={metadescrip} />
+    <meta
+      property="twitter:url"
+      content={`https://tasasvenezuela.vercel.app/${slug}`}
+    />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{title}</title>
+    <title>{metatitle}</title>
   </head>
   <body>
     <slot />
