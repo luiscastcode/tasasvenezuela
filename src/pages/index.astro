@@ -9,11 +9,20 @@ import { getAllRates } from "../utils/api";
 
 // Fetch exchange rates
 const rates = await getAllRates();
+const currentYear = new Date().getFullYear();
+function obtenerFechaCorta() {
+    const fecha = new Date();
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const anio = fecha.getFullYear();
+    
+    return `${dia}/${mes}/${anio}`;
+}
 ---
 
 <Layout
-  metatitle="Precio del dólar hoy en Venezuela (BCV hoy)"
-  metadescrip="Consulta las tasas actualizadas del Dólar BCV, Euro BCV y USDT en tiempo real"
+  metatitle=`Tasa Euro hoy Venezuela | Precio Dólar BCV y USDT actualizado ${currentYear}`
+  metadescrip="Consulta el precio del euro, dólar hoy en Venezuela: tasa oficial BCV y USDT. Actualización cada 2 horas. ¿En cuánto está el euro? Respuesta aquí."
   slug=""
 >
   <Header />
@@ -22,10 +31,10 @@ const rates = await getAllRates();
     <!-- Hero Section -->
     <section class="hero">
       <div class="container">
-        <h1 class="hero-title fade-in">Tasas Al Día en Venezuela</h1>
+        <h1 class="hero-title fade-in">Precio del dólar hoy en Venezuela</h1>
+        <h2 class="hero-title fade-in">Actualizado {obtenerFechaCorta()}</h2>
         <p class="hero-subtitle fade-in">
-          Consulta las tasas actualizadas del Dólar BCV, Euro BCV y USDT en
-          tiempo real
+          Consulta las tasas actualizadas del Dólar BCV, Euro y USDT en Venezuela. Información confiable y actualizada cada 2 horas para que siempre estés al día con el mercado cambiario.
         </p>
       </div>
     </section>
@@ -106,6 +115,7 @@ const rates = await getAllRates();
     font-size: 3rem;
     margin-bottom: var(--spacing-md);
     animation: fadeIn 0.8s ease-out;
+    text-transform: capitalize;
   }
 
   .hero-subtitle {
@@ -191,6 +201,7 @@ const rates = await getAllRates();
   @media (max-width: 768px) {
     .hero-title {
       font-size: 2rem;
+      text-transform: capitalize;
     }
 
     .hero-subtitle {

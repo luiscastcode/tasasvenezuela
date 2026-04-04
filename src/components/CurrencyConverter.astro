@@ -9,9 +9,10 @@ const { rates } = Astro.props;
 ---
 
 <div class="converter glass-card">
-    <h2 class="converter-title">Calculadora de Divisas</h2>
+    <h2 class="converter-title">Valor del dólar hoy en Venezuela</h2>
+    <h3 class="converter-title">Calculadora de Divisas</h3>
     <p class="converter-description">
-        Calcula el valor de tus divisas extranjeras en bolívares
+        Calcula el precio de manera rapida en Bs o en tu divisa favorita usando las tasas actualizadas del Dólar BCV, Euro y USDT en Venezuela. Simplemente ingresa el monto, selecciona la divisa y obtén el resultado al instante.
     </p>
 
     <div class="converter-form">
@@ -223,14 +224,12 @@ const { rates } = Astro.props;
         font-size: 2rem;
         font-weight: 700;
         padding: var(--spacing-lg);
-        background: var(--gradient-card);
+        background: rgb(136, 223, 194);
         border: 1px solid var(--color-border);
         border-radius: var(--radius-lg);
         text-align: center;
-        background: var(--gradient-success);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: #111;
+        transition: all var(--transition-base);
     }
 
     @media (max-width: 640px) {

@@ -1,6 +1,13 @@
 ---
 import "../styles/global.css";
 import Analytics from "@vercel/analytics/astro";
+import { getAllRates, formatBs, formatCurrency, formatDate } from '../utils/api';
+
+// Obtener datos reales de la API
+const rates = await getAllRates();
+const bcvDollar = rates.find(r => r.code === 'USD');
+const usdt = rates.find(r => r.code === 'USDT');
+const euro = rates.find(r => r.code === 'EUR');
 
 interface Props {
   metatitle: string;
@@ -64,6 +71,22 @@ const { metatitle, metadescrip, slug } = Astro.props;
     <title>{metatitle}</title>
   </head>
   <body>
+    <!-- Schema.org con datos REALES -->
+  <script is:inline type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "ExchangeRateSpecification",
+    "name": "Tipo de cambio USD a VES",
+    "currency": "USD",
+    "targetCurrency": "VES",
+    "exchangeRate": bcvDollar?.rate || 0,
+    "dateModified": new Date().toISOString(),
+    "source": "Banco Central de Venezuela",
+    "provider": {
+      "@type": "Organization",
+      "name": "TasasVenezuela",
+      "url": "https://tasasvenezuela.vercel.app"
+    }
+  })} />
     <slot />
     <Analytics />
   </body>
