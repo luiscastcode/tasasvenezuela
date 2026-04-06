@@ -34,20 +34,36 @@ function obtenerFechaCorta() {
         <h1 class="hero-title fade-in">Precio del dólar hoy en Venezuela</h1>
         <h2 class="hero-title fade-in">Actualizado {obtenerFechaCorta()}</h2>
         <p class="hero-subtitle fade-in">
-          Consulta las tasas actualizadas del Dólar BCV, Euro y USDT en Venezuela. Información confiable y actualizada cada 2 horas para que siempre estés al día con el mercado cambiario.
-        </p>
+          Consulta las tasas actualizadas del Dólar BCV, Euro y USDT en Venezuela.
+        </p>         
+      </div>      
       </div>
     </section>
 
     <!-- Exchange Rates Section -->
     <section class="rates-section">
-      <div class="container">
+      <div class="container">           
         <div class="grid grid-cols-3">
           {rates.map((rate) => <ExchangeRateCard rate={rate} />)}
         </div>
       </div>
     </section>
-
+ 
+    <!-- Info Banner -->
+    <section class="info-banner">
+      <div class="container">
+        <div class="banner-content glass-card">
+          <div class="banner-icon">⚠️</div>
+          <div class="banner-text">
+            <h3>Información Importante</h3>
+            <p>
+              El valor del euro es el actualizado del dia y se calcula con base en la cotización del dólar oficial y puede presentar un desfase por fines de semana/feriados del BCV.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+ 
     <!-- Currency Converter Section -->
     <section class="converter-section">
       <div class="container">

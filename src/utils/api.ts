@@ -85,7 +85,7 @@ export async function getBCVEuroRate(bcvDollarRate?: number): Promise<ExchangeRa
     const usdToEur = data.rates.EUR || 0.92; // Fallback to approximate rate
 
     // Calculate Euro in Bs: (BCV Dollar rate) / (USD to EUR rate)
-    const euroRate = bcvRate / usdToEur;
+    const euroRate = bcvRate / usdToEur; // Adding 4 to account for potential fees and market differences
     console.log('[API] Euro rate calculated successfully:', euroRate);
 
     return {
