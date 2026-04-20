@@ -5,10 +5,13 @@ import Footer from "../components/Footer.astro";
 import ExchangeRateCard from "../components/ExchangeRateCard.astro";
 import CurrencyConverter from "../components/CurrencyConverter.astro";
 import ProfitCalculator from "../components/ProfitCalculator.astro";
+import RateStatistics from "../components/RateStatistics.astro";
 import { getAllRates } from "../utils/api";
+import { getRateStats } from "../utils/statistics";
 
 // Fetch exchange rates
 const rates = await getAllRates();
+const stats = await getRateStats(rates);
 const currentYear = new Date().getFullYear();
 function obtenerFechaCorta() {
     const fecha = new Date();
@@ -48,6 +51,9 @@ function obtenerFechaCorta() {
         </div>
       </div>
     </section>
+
+    <!-- Rate Statistics Section -->
+    <RateStatistics rates={rates} stats={stats} />
  
     <!-- Info Banner -->
     <section class="info-banner">

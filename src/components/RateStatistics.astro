@@ -1,0 +1,306 @@
+---
+import type { ExchangeRate } from "../utils/api";
+import type { RateStats } from "../utils/statistics";
+import { formatBs } from "../utils/api";
+
+interface Props {
+  rates: ExchangeRate[];
+  stats: RateStats;
+}
+
+const { rates, stats } = Astro.props;
+const periodOptions = [7, 15, 30];
+const chartPayload = JSON.stringify(stats.histories);
+const averageVolatility = Math.round(
+  stats.variations.reduce((sum, variation) => sum + variation.volatility30, 0) / stats.variations.length,
+);
+---
+
+<section class="stats-section">
+  <div class="container">
+    <div class="section-intro">
+      
+        <h2 class="text-center">Estadísticas y comparativas</h2>
+        <p class="text-center">
+          Analiza la variación de dólar, euro y USDT frente al día anterior, el
+          spread entre USDT y dólar oficial, y el comportamiento en periodos de
+          7, 15 y 30 días.
+        </p>
+       
+    </div>
+
+    <div class="cards-grid">
+      {stats.variations.filter(variation => variation.code === "USD" || variation.code === "USDT" || variation.code === "EUR").map((variation) => (
+        <article class="stat-card">
+
+          <div class="stat-card-title">{variation.name}</div>
+          
+          <div class="stat-card-value">{formatBs(variation.currentRate)}</div>
+          <div class="stat-card-meta">Variación respecto a ayer</div>
+          <div class={`stat-card-change ${variation.variation >= 0 ? "positive" : "negative"}`}>
+            {variation.formattedVariation} ({formatBs(variation.currentRate - variation.previousRate)})
+          </div>
+          
+          <div class="stat-card-line">
+            <span>Promedio 30d:</span>
+            <strong>{formatBs(variation.average30)}</strong>
+          </div>
+          <div class="stat-card-line">
+            <span>Rango Min En 30d:</span>
+            <strong>{formatBs(variation.min30)}  </strong>
+          </div>
+          <div class="stat-card-line">
+            <span>Rango Max En 30d:</span>
+            <strong>{formatBs(variation.max30)}</strong>
+          </div>
+        </article>
+      ))}   
+ 
+    </div>
+<div class="grid grid-cols-1 mb-8">
+   <article class="stat-card highlight-card">
+        <div class="stat-card-title">Diferencial USDT / Dólar oficial</div>
+        <div class="stat-card-value">{formatBs(stats.spreadAmount)}</div>
+        <div class={`stat-card-change ${stats.spreadAmount >= 0 ? "positive" : "negative"}`}>
+          {stats.spreadPercent >= 0 ? "+" : ""}{stats.spreadPercent.toFixed(2)}%
+        </div>
+        <div class="stat-card-meta">Monto adicional que exige USDT frente al oficial</div>
+        <div class="stat-card-line">
+          <span>Volatilidad 30d promedio</span>
+          <strong>{averageVolatility.toFixed(2)} Bs</strong>
+        </div>
+      </article>
+      <article class="stat-card trend-card highlight-card">
+        <div class="stat-card-title">Tendencia acumulada 30d</div>
+        <div class="stat-card-value">{stats.trendLabel}</div>
+        <div class={`stat-card-change ${stats.trendScore >= 0 ? "positive" : "negative"}`}>
+          {stats.trendScore >= 0 ? "+" : ""}{stats.trendScore.toFixed(2)}%
+        </div>
+        <div class="stat-card-meta">Cambios promedio acumulados en las tres tasas</div>
+        <div class="stat-card-line">
+          <span>Interpretación:</span>
+          <strong>{stats.trendLabel === "Estable" ? "Movimientos laterales" : stats.trendLabel === "Alcista" ? "Subida general" : "Descenso general"}</strong>
+        </div>
+      </article>     
+    </div>
+    
+  </div>
+</section>
+
+ 
+
+<style>
+.stats-section {
+  padding: var(--spacing-2xl) 0;
+}
+
+.section-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  
+}
+
+.section-intro h2 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.section-intro p {
+  color: var(--color-text-secondary);
+  max-width: 720px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.stat-card,
+.highlight-card {
+  background: var(--surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-sm);
+}
+
+.stat-card-value {
+  font-size: 1.7rem;
+  font-weight: 800;
+  margin-bottom: var(--spacing-sm);
+}
+
+.stat-card-change {
+  font-weight: 700;
+  margin-bottom: var(--spacing-sm);
+}
+
+.stat-card-change.positive {
+  color: #abda40;
+}
+
+.stat-card-change.negative {
+  color: #e93030;
+}
+
+.stat-card-meta,
+.stat-card-line {
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+
+.stat-card-line {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.highlight-card {
+  grid-column: span 2;
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.history-card {
+  background: var(--surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-xl);
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.history-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.history-header p {
+  margin: var(--spacing-xs) 0 0;
+  color: var(--color-text-secondary);
+}
+
+.period-switcher {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.period-switcher button {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  border-radius: var(--radius-lg);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.period-switcher button.active,
+.period-switcher button:hover {
+  background: var(--color-background);
+  border-color: var(--color-accent-primary);
+  color: var(--color-text-primary);
+}
+
+.chart-panel {
+  position: relative;
+}
+
+#history-chart {
+  width: 100%;
+  min-height: 420px;
+  max-height: 420px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.03), rgba(15, 23, 42, 0.06));
+  cursor: crosshair;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+}
+
+.color-1 {
+  background: #0ea5e9;
+}
+
+.color-2 {
+  background: #f97316;
+}
+
+.color-3 {
+  background: #22c55e;
+}
+
+@media (max-width: 1200px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .highlight-card {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .section-intro,
+  .history-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-tooltip {
+  position: absolute;
+  background: rgba(15, 23, 42, 0.95);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 1000;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 200px;
+  white-space: nowrap;
+}
+</style>

@@ -61,42 +61,30 @@ export async function getBCVDollarRate(): Promise<ExchangeRate> {
 }
 
 /**
- * Fetch Euro rate (calculated from USD/EUR conversion + BCV dollar rate)
+ * Fetch BCV Euro rate from DolarApi.com
  */
-export async function getBCVEuroRate(bcvDollarRate?: number): Promise<ExchangeRate> {
+export async function getBCVEuroRate(): Promise<ExchangeRate> {
   try {
-    console.log('[API] Fetching Euro rate...');
-
-    // Use provided BCV rate or fetch it
-    let bcvRate = bcvDollarRate;
-    if (!bcvRate) {
-      const bcvDollar = await getBCVDollarRate();
-      bcvRate = bcvDollar.rate;
-    }
-
-    // Get USD/EUR exchange rate from a free API
-    const response = await fetchWithTimeout('https://api.exchangerate-api.com/v4/latest/USD');
+    console.log('[API] Fetching BCV Dollar rate...');
+    const response = await fetchWithTimeout('https://ve.dolarapi.com/v1/euros/oficial');
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
-    const usdToEur = data.rates.EUR || 0.92; // Fallback to approximate rate
-
-    // Calculate Euro in Bs: (BCV Dollar rate) / (USD to EUR rate)
-    const euroRate = bcvRate / usdToEur; // Adding 4 to account for potential fees and market differences
-    console.log('[API] Euro rate calculated successfully:', euroRate);
+    console.log('[API] BCV Euro rate fetched successfully:', data.promedio || data.precio);
 
     return {
       name: 'Euro BCV',
       code: 'EUR',
-      rate: euroRate,
-      lastUpdate: new Date().toISOString(),
+      rate: data.promedio || data.precio || 0,
+      lastUpdate: data.fechaActualizacion || new Date().toISOString(),
       symbol: '€'
     };
   } catch (error) {
-    console.error('[API] Error fetching Euro rate:', error);
+    console.error('[API] Error fetching BCV Dollar rate:', error);
+    // Return fallback data
     return {
       name: 'Euro BCV',
       code: 'EUR',
@@ -106,6 +94,8 @@ export async function getBCVEuroRate(bcvDollarRate?: number): Promise<ExchangeRa
     };
   }
 }
+
+ 
 
 /**
  * Fetch USDT rate from parallel market (DolarApi)
@@ -200,4 +190,26 @@ export function formatDate(dateString: string): string {
     hour: '2-digit',
     minute: '2-digit'
   }).format(date);
+}
+
+/**
+ * Fetch historical exchange rates from DolarApi
+ */
+export async function getHistoricalRates(): Promise<{ fecha: string; promedio: number }[]> {
+  try {
+    console.log('[API] Fetching historical rates...');
+    const response = await fetchWithTimeout('https://ve.dolarapi.com/v1/historicos/dolares/oficial');
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('[API] Historical rates fetched successfully, count:', data.length);
+
+    return data;
+  } catch (error) {
+    console.error('[API] Error fetching historical rates:', error);
+    return [];
+  }
 }
