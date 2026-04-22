@@ -1,0 +1,397 @@
+---
+// src/components/DollarChart/DollarChart.astro
+import { fetchDollarHistorical } from '../../utils/api';
+
+interface Props {
+  initialDays?: 7 | 15 | 30;
+  height?: string;
+  className?: string;
+  colors?: { oficial?: string; paralelo?: string };
+  locale?: string;
+}
+
+const {
+  initialDays = 15,
+  height = '400px',
+  className = '',
+  colors = {},
+  locale = 'es-VE',
+} = Astro.props;
+
+// Obtener y procesar datos en el servidor
+const rawData = await fetchDollarHistorical();
+
+// Procesar datos (agrupar por fecha)
+function processData(data: any[]) {
+  const grouped = new Map<string, { time: string; oficial: number; paralelo: number }>();
+  
+  data.forEach((item) => {
+    if (!item.fecha) return;
+    
+    const existing = grouped.get(item.fecha) || { 
+      time: item.fecha, 
+      oficial: 0, 
+      paralelo: 0 
+    };
+    
+    if (item.fuente === 'oficial' && typeof item.promedio === 'number') {
+      existing.oficial = item.promedio;
+    } else if (item.fuente === 'paralelo' && typeof item.promedio === 'number') {
+      existing.paralelo = item.promedio;
+    }
+    
+    grouped.set(item.fecha, existing);
+  });
+  
+  return Array.from(grouped.values())
+    .filter(d => d.oficial > 0 || d.paralelo > 0)
+    .sort((a, b) => a.time.localeCompare(b.time));
+}
+
+const allProcessed = processData(rawData);
+
+// Filtrar por días iniciales
+const cutoffDate = new Date();
+cutoffDate.setDate(cutoffDate.getDate() - initialDays);
+const initialData = allProcessed.filter(d => new Date(d.time) >= cutoffDate);
+
+// Configuración de colores
+const chartColors = {
+  oficial: colors.oficial ?? '#2563EB',
+  paralelo: colors.paralelo ?? '#16A34A',
+};
+
+// Serializar para el cliente
+const allDataJSON = JSON.stringify(allProcessed);
+const initialDataJSON = JSON.stringify(initialData);
+const colorsJSON = JSON.stringify(chartColors);
+---
+
+<div class={`dollar-chart-wrapper ${className}`} data-locale={locale}>
+  <header class="chart-header">
+    <h3 class="chart-title">Evolución del Dólar en Venezuela</h3>
+    <div class="filter-group" role="tablist" aria-label="Período de tiempo">
+      {[7, 15, 30].map((days) => (
+        <button
+          class={`filter-btn ${days === initialDays ? 'active' : ''}`}
+          data-days={days}
+          role="tab"
+          aria-selected={days === initialDays ? 'true' : 'false'}
+          type="button"
+        >
+          {days}D
+        </button>
+      ))}
+    </div>
+  </header>
+
+  <div 
+    id="dollar-chart" 
+    class="chart-container" 
+    style={`height: ${height};`}
+    data-all={allDataJSON}
+    data-initial={initialDataJSON}
+    data-colors={colorsJSON}
+    data-locale={locale}
+    aria-label="Gráfico de evolución del dólar"
+    role="img"
+  ></div>
+
+  <footer class="chart-legend">
+    <span class="legend-item">
+      <span class="legend-dot" style={`background: ${chartColors.oficial}`}></span>
+      Oficial
+    </span>
+    <span class="legend-item">
+      <span class="legend-dot" style={`background: ${chartColors.paralelo}`}></span>
+      Paralelo
+    </span>
+  </footer>
+</div>
+
+<script>
+  import { createChart, ColorType, CrosshairMode, LineSeries } from 'lightweight-charts';
+
+  (function() {
+    function init() {
+      const chartEl = document.getElementById('dollar-chart');
+      if (!chartEl) return;
+
+      // Parsear datos del dataset
+      const allData = JSON.parse(chartEl.dataset.all || '[]');
+      const chartColors = JSON.parse(chartEl.dataset.colors || '{}');
+      const locale = chartEl.dataset.locale || 'es-VE';
+      
+      let chart = null;
+
+      // Función para filtrar datos por días
+      function filterByDays(data, days) {
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - days);
+        cutoff.setHours(0, 0, 0, 0);
+        return data.filter(d => new Date(d.time) >= cutoff);
+      }
+
+      // Función para formatear fechas
+      function formatDate(dateStr) {
+        const [year, month, day] = dateStr.split('-');
+        return `${day}/${month}/${year}`;
+      }
+
+      // Función para crear/actualizar el gráfico
+      async function renderChart(days) {
+        const dataToShow = filterByDays(allData, days);
+        
+        if (dataToShow.length === 0) return;
+
+        // Limpiar contenedor
+        chartEl.innerHTML = '';
+        
+        // Obtener dimensiones
+        const width = chartEl.clientWidth || 800;
+        const height = chartEl.clientHeight || 400;
+
+        // Crear gráfico
+        if (chart) chart.remove();
+        
+        chart = createChart(chartEl, {
+          width,
+          height,
+          layout: {
+            background: { type: ColorType.Solid, color: '#ffffff' },
+            textColor: '#64748B',
+          },
+          grid: {
+            vertLines: { color: '#E2E8F0', visible: true },
+            horzLines: { color: '#E2E8F0', visible: true },
+          },
+          timeScale: {
+            timeVisible: true,
+            borderColor: '#E2E8F0',
+          },
+          rightPriceScale: {
+            borderColor: '#E2E8F0',
+            autoScale: true,
+          },
+          crosshair: {
+            mode: CrosshairMode.Normal,
+          },
+          localization: {
+            priceFormatter: (price) => {
+              return new Intl.NumberFormat(locale, {
+                style: 'currency',
+                currency: 'VES',
+                minimumFractionDigits: 2,
+              }).format(price).replace('VES', 'Bs.');
+            },
+          },
+        });
+
+        // Crear series
+        const oficialSeries = chart.addSeries(LineSeries, {
+          color: chartColors.oficial,
+          lineWidth: 2,
+          priceLineVisible: true,
+          lastValueVisible: true,
+        });
+        
+        const paraleloSeries = chart.addSeries(LineSeries, {
+          color: chartColors.paralelo,
+          lineWidth: 2,
+          priceLineVisible: true,
+          lastValueVisible: true,
+        });
+
+        // Preparar y establecer datos
+        const oficialData = dataToShow
+          .map(d => ({ time: d.time, value: d.oficial }))
+          .filter(d => d.value > 0);
+          
+        const paraleloData = dataToShow
+          .map(d => ({ time: d.time, value: d.paralelo }))
+          .filter(d => d.value > 0);
+
+        oficialSeries.setData(oficialData);
+        paraleloSeries.setData(paraleloData);
+        
+        chart.timeScale().fitContent();
+
+        // Tooltip básico
+        const tooltip = document.createElement('div');
+        tooltip.style.cssText = `
+          position: absolute; display: none; padding: 8px 12px;
+          background: #1E293B; color: #F8FAFC; border-radius: 6px;
+          font-size: 12px; pointer-events: none; z-index: 100;
+        `;
+        chartEl.appendChild(tooltip);
+
+        chart.subscribeCrosshairMove((param) => {
+          if (!param.point || !param.time || !param.seriesData) {
+            tooltip.style.display = 'none';
+            return;
+          }
+
+          const dataPoint = dataToShow.find(d => d.time === param.time);
+          if (!dataPoint) {
+            tooltip.style.display = 'none';
+            return;
+          }
+
+          tooltip.style.display = 'block';
+          tooltip.style.left = `${param.point.x + 15}px`;
+          tooltip.style.top = `${param.point.y - 60}px`;
+          tooltip.innerHTML = `
+            <div style="font-weight:600;margin-bottom:4px">${formatDate(param.time)}</div>
+            <div style="color:#60A5FA">Oficial: ${dataPoint.oficial.toFixed(2)} Bs.</div>
+            <div style="color:#34D399">Paralelo: ${dataPoint.paralelo.toFixed(2)} Bs.</div>
+          `;
+        });
+
+        chartEl.addEventListener('mouseleave', () => {
+          tooltip.style.display = 'none';
+        });
+
+        // Observer para resize
+        const resizeObserver = new ResizeObserver(() => {
+          if (chart && chartEl.clientWidth > 0) {
+            chart.applyOptions({
+              width: chartEl.clientWidth,
+              height: chartEl.clientHeight,
+            });
+          }
+        });
+        resizeObserver.observe(chartEl);
+      }
+
+      // Configurar listeners de botones
+      const filterGroup = document.querySelector('.filter-group');
+      filterGroup?.addEventListener('click', (e) => {
+        const btn = e.target.closest('.filter-btn');
+        if (btn) {
+          const days = parseInt(btn.dataset.days);
+          
+          // Actualizar UI
+          document.querySelectorAll('.filter-btn').forEach(b => {
+            b.classList.remove('active');
+            b.setAttribute('aria-selected', 'false');
+          });
+          btn.classList.add('active');
+          btn.setAttribute('aria-selected', 'true');
+          
+          // Renderizar
+          renderChart(days);
+        }
+      });
+
+      // Renderizado inicial
+      const activeBtn = document.querySelector('.filter-btn.active');
+      const initialDays = activeBtn ? parseInt(activeBtn.dataset.days) : 15;
+      renderChart(initialDays);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+</script>
+
+<style>
+  .dollar-chart-wrapper {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #E2E8F0;
+    background: #F8FAFC;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .chart-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1E293B;
+    margin: 0;
+  }
+
+  .filter-group {
+    display: flex;
+    gap: 4px;
+    background: #E2E8F0;
+    padding: 4px;
+    border-radius: 8px;
+  }
+
+  .filter-btn {
+    padding: 6px 14px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #64748B;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-width: 44px;
+  }
+
+  .filter-btn:hover {
+    color: #1E293B;
+    background: #FFFFFF;
+  }
+
+  .filter-btn.active {
+    background: #2563EB;
+    color: #FFFFFF;
+  }
+
+  .chart-container {
+    width: 100%;
+    position: relative;
+  }
+
+  .chart-legend {
+    display: flex;
+    gap: 20px;
+    padding: 12px 20px;
+    border-top: 1px solid #E2E8F0;
+    background: #F8FAFC;
+    justify-content: center;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+    color: #64748B;
+  }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  @media (max-width: 640px) {
+    .chart-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .filter-group {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>

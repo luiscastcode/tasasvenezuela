@@ -8,24 +8,26 @@ import ProfitCalculator from "../components/ProfitCalculator.astro";
 import RateStatistics from "../components/RateStatistics.astro";
 import { getAllRates } from "../utils/api";
 import { getRateStats } from "../utils/statistics";
+import DollarChart from "../components/DollarChart/DollarChart.astro";
 
 // Fetch exchange rates
 const rates = await getAllRates();
 const stats = await getRateStats(rates);
 const currentYear = new Date().getFullYear();
 function obtenerFechaCorta() {
-    const fecha = new Date();
-    const dia = String(fecha.getDate()).padStart(2, '0');
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const anio = fecha.getFullYear();
-    
-    return `${dia}/${mes}/${anio}`;
+  const fecha = new Date();
+  const dia = String(fecha.getDate()).padStart(2, "0");
+  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+  const anio = fecha.getFullYear();
+
+  return `${dia}/${mes}/${anio}`;
 }
+const fechaActual = obtenerFechaCorta();
 ---
 
 <Layout
-  metatitle=`Tasa Euro hoy Venezuela | Precio Dólar BCV y USDT actualizado ${currentYear}`
-  metadescrip="Consulta el precio del euro, dólar hoy en Venezuela: tasa oficial BCV y USDT. Actualización cada 2 horas. ¿En cuánto está el euro? Respuesta aquí."
+  metatitle=`Brecha Cambiaria en Venezuela | Actualizado ${fechaActual}`
+  metadescrip="Consulta la brecha cambiaria en Venezuela entre la tasa oficial BCV y USDT, tendencias de las tasas y mas. ¿Cuánto es el diferencial cambiario?."
   slug=""
 >
   <Header />
@@ -34,98 +36,105 @@ function obtenerFechaCorta() {
     <!-- Hero Section -->
     <section class="hero">
       <div class="container">
-        <h1 class="hero-title fade-in">Precio del dólar hoy en Venezuela</h1>
-        <h2 class="hero-title fade-in">Actualizado {obtenerFechaCorta()}</h2>
+        <h1 class="hero-title fade-in">Brecha Cambiaria En Venezuela</h1>
+        <h2 class="hero-title fade-in">Actualizada {obtenerFechaCorta()}</h2>
         <p class="hero-subtitle fade-in">
-          Consulta las tasas actualizadas del Dólar BCV, Euro y USDT en Venezuela.
-        </p>         
-      </div>      
-      </div>
-    </section>
-
-    <!-- Exchange Rates Section -->
-    <section class="rates-section">
-      <div class="container">           
-        <div class="grid grid-cols-3">
-          {rates.map((rate) => <ExchangeRateCard rate={rate} />)}
-        </div>
-      </div>
-    </section>
-
-    <!-- Rate Statistics Section -->
-    <RateStatistics rates={rates} stats={stats} />
- 
-    <!-- Info Banner -->
-    <section class="info-banner">
-      <div class="container">
-        <div class="banner-content glass-card">
-          <div class="banner-icon">⚠️</div>
-          <div class="banner-text">
-            <h3>Información Importante</h3>
-            <p>
-              El valor del euro es el actualizado del dia y se calcula con base en la cotización del dólar oficial y puede presentar un desfase por fines de semana/feriados del BCV.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
- 
-    <!-- Currency Converter Section -->
-    <section class="converter-section">
-      <div class="container">
-        <CurrencyConverter rates={rates} />
-      </div>
-    </section>
-    <section class="info-banner">
-      <div class="container">
-        <div class="cta-section">
-          <div class="cta-box">
-            <img src="img/bybit.png" alt="Bybit" />
-
-            <p>
-              Unete a Bybit y compra USDT a un precio excelente para resguardar
-              tus bolivares.
-            </p>
-            <a
-              href="https://www.bybit.com/invite?ref=Y8MB0PP"
-              class="btn btn-primary"
-              target="_blank"
-            >
-              Unete a Bybit
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Profit Calculator Section -->
-    <section class="calculator-section">
-      <div class="container">
-        <ProfitCalculator rates={rates} />
-      </div>
-    </section>
-
-    <!-- Info Banner -->
-    <section class="info-banner">
-      <div class="container">
-        <div class="banner-content glass-card">
-          <div class="banner-icon">⚠️</div>
-          <div class="banner-text">
-            <h3>Información Importante</h3>
-            <p>
-              Los datos mostrados son de carácter informativo y provienen de
-              fuentes públicas. No constituyen información oficial ni asesoría
-              financiera.
-              <a href="/descargo-de-responsabilidad/">Leer más</a>
-            </p>
-          </div>
-        </div>
+          Consulta la variación de dólar BCV, euro y USDT respecto a la tasa
+          anterior, mantente al tanto de la brecha cambiaria y tomas tus
+          previsiones.
+        </p>
       </div>
     </section>
   </main>
 
-  <Footer />
+  <!-- Rate Statistics Section -->
+  <RateStatistics rates={rates} stats={stats} />
+
+  <!-- Info Banner -->
+  <section class="info-banner">
+    <div class="container">
+      <div class="banner-content glass-card">
+        <div class="banner-icon">⚠️</div>
+        <div class="banner-text">
+          <h3>Información Importante</h3>
+          <p>
+            El valor del euro es el actualizado del dia y se calcula con base en
+            la cotización del dólar oficial y puede presentar un desfase por
+            fines de semana/feriados del BCV.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="info">
+    <div class="container">
+      <DollarChart
+        initialDays={7}
+        height="450px"
+        className="shadow-lg"
+        colors={{
+          oficial: "#2563EB",
+          paralelo: "#16A34A",
+        }}
+        locale="es-VE"
+      />
+    </div>
+  </section>
+  <!-- Currency Converter Section -->
+  <section class="converter-section">
+    <div class="container">
+      <CurrencyConverter rates={rates} />
+    </div>
+  </section>
+  <section class="info-banner">
+    <div class="container">
+      <div class="cta-section">
+        <div class="cta-box">
+          <img src="img/bybit.png" alt="Bybit" />
+
+          <p>
+            Unete a Bybit y compra USDT a un precio excelente para resguardar
+            tus bolivares.
+          </p>
+          <a
+            href="https://www.bybit.com/invite?ref=Y8MB0PP"
+            class="btn btn-primary"
+            target="_blank"
+          >
+            Unete a Bybit
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Profit Calculator Section -->
+  <section class="calculator-section">
+    <div class="container">
+      <ProfitCalculator rates={rates} />
+    </div>
+  </section>
+
+  <!-- Info Banner -->
+  <section class="info-banner">
+    <div class="container">
+      <div class="banner-content glass-card">
+        <div class="banner-icon">⚠️</div>
+        <div class="banner-text">
+          <h3>Información Importante</h3>
+          <p>
+            Los datos mostrados son de carácter informativo y provienen de
+            fuentes públicas. No constituyen información oficial ni asesoría
+            financiera.
+            <a href="/descargo-de-responsabilidad/">Leer más</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
 </Layout>
+
+<Footer />
 
 <style>
   .hero {
