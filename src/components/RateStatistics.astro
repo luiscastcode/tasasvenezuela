@@ -15,6 +15,14 @@ const averageVolatility = Math.round(
   stats.variations.reduce((sum, variation) => sum + variation.volatility30, 0) /
     stats.variations.length,
 );
+function obtenerFechaCorta() {
+  const fecha = new Date();
+  const dia = String(fecha.getDate()).padStart(2, "0");
+  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+  const anio = fecha.getFullYear();
+
+  return `${dia}/${mes}/${anio}`;
+}
 ---
 
 <section class="stats-section">
@@ -30,8 +38,8 @@ const averageVolatility = Math.round(
           )
           .map((variation) => (
             <article class="stat-card">
-              <div class="stat-card-title">{variation.name}</div>
-
+              <div class="stat-card-title">{variation.name} - Hoy {obtenerFechaCorta()}</div>
+               
               <div class="stat-card-value">
                 {formatBs(variation.currentRate)}
               </div>
