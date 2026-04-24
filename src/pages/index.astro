@@ -10,6 +10,8 @@ import { getAllRates } from "../utils/api";
 import { getRateStats } from "../utils/statistics";
 import DollarChart from "../components/DollarChart/DollarChart.astro";
 
+import { formatBs } from "../utils/api";
+
 // Fetch exchange rates
 const rates = await getAllRates();
 const stats = await getRateStats(rates);
@@ -36,13 +38,29 @@ const fechaActual = obtenerFechaCorta();
     <!-- Hero Section -->
     <section class="hero">
       <div class="container">
-        <h1 class="hero-title fade-in">Brecha Cambiaria En Venezuela</h1>
-        <h2 class="hero-title fade-in">Actualizada {obtenerFechaCorta()}</h2>
-        <p class="hero-subtitle fade-in">
-          Consulta la variación de dólar BCV, euro y USDT respecto a la tasa
-          anterior, mantente al tanto de la brecha cambiaria y tomas tus
-          previsiones.
-        </p>
+        <div class="div">
+          <h1 class="hero-title fade-in">Brecha Cambiaria En Venezuela</h1>
+          <h2 class="hero-title fade-in stat-card-value">
+            {formatBs(stats.spreadAmount)}
+          </div>
+          <h2
+            class={`hero-title fade-in stat-card-change ${stats.spreadAmount >= 0 ? "positive" : "negative"}`}
+          >
+            {stats.spreadPercent >= 0 ? "+" : ""}{
+              stats.spreadPercent.toFixed(2)
+            }%
+          </div>
+        </div>
+        <div class="div">
+          <p class="">
+            Actualizada {obtenerFechaCorta()}
+          </p>
+          <p class="hero-subtitle fade-in">
+            Consulta la variación de dólar BCV, euro y USDT respecto a la tasa
+            anterior, mantente al tanto de la brecha cambiaria y tomas tus
+            previsiones.
+          </p>
+        </div>
       </div>
     </section>
   </main>
@@ -227,6 +245,14 @@ const fechaActual = obtenerFechaCorta();
     line-height: 1.8;
     margin-bottom: var(--spacing-xl);
     color: var(--color-text-primary);
+  }
+
+  .stat-card-change.positive {
+    color: #abda40;
+  }
+
+  .stat-card-change.negative {
+    color: #e93030;
   }
 
   @media (max-width: 768px) {
