@@ -100,11 +100,11 @@ const colorsJSON = JSON.stringify(chartColors);
   <footer class="chart-legend">
     <span class="legend-item">
       <span class="legend-dot" style={`background: ${chartColors.oficial}`}></span>
-      Oficial
+      BCV
     </span>
     <span class="legend-item">
       <span class="legend-dot" style={`background: ${chartColors.paralelo}`}></span>
-      Paralelo
+      USDT
     </span>
   </footer>
 </div>
@@ -242,8 +242,8 @@ const colorsJSON = JSON.stringify(chartColors);
           tooltip.style.top = `${param.point.y - 60}px`;
           tooltip.innerHTML = `
             <div style="font-weight:600;margin-bottom:4px">${formatDate(param.time)}</div>
-            <div style="color:#60A5FA">Oficial: ${dataPoint.oficial.toFixed(2)} Bs.</div>
-            <div style="color:#34D399">Paralelo: ${dataPoint.paralelo.toFixed(2)} Bs.</div>
+            <div style="color:#60A5FA">BCV: ${dataPoint.oficial.toFixed(2)} Bs.</div>
+            <div style="color:#34D399">USDT: ${dataPoint.paralelo.toFixed(2)} Bs.</div>
           `;
         });
 
