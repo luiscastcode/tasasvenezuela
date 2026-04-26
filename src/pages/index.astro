@@ -1,7 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
+
 import ExchangeRateCard from "../components/ExchangeRateCard.astro";
 import CurrencyConverter from "../components/CurrencyConverter.astro";
 import ProfitCalculator from "../components/ProfitCalculator.astro";
@@ -32,78 +31,35 @@ const fechaActual = obtenerFechaCorta();
   metadescrip="Consulta la brecha cambiaria en Venezuela entre la tasa oficial BCV y USDT, tendencias de las tasas y mas. ¿Cuánto es el diferencial cambiario?."
   slug=""
 >
-  <Header />
-
-  <main>
-    <!-- Hero Section -->
-    <section class="hero">
-      <div class="container">
-        <div class="div">
-          <h1 class="hero-title fade-in">Brecha Cambiaria En Venezuela</h1>
-          <h2 class="hero-title fade-in stat-card-value">
-            {formatBs(stats.spreadAmount)}
-          </div>
-          <h2
-            class={`hero-title fade-in stat-card-change ${stats.spreadAmount >= 0 ? "positive" : "negative"}`}
-          >
-            {stats.spreadPercent >= 0 ? "+" : ""}{
-              stats.spreadPercent.toFixed(2)
-            }%
-          </div>
-        </div>
-        <div class="div">
-          <p class="">
-            Actualizada {obtenerFechaCorta()}
-          </p>
-          <p class="hero-subtitle fade-in">
-            Consulta la variación de dólar BCV, euro y USDT respecto a la tasa
-            anterior, mantente al tanto de la brecha cambiaria y tomas tus
-            previsiones.
-          </p>
-        </div>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <span class="text-sm text-gray-500 mb-2 block">
+        Actualizada {obtenerFechaCorta()}
+      </span>
+      <h1 class="hero-title fade-in">Brecha Cambiaria En Venezuela</h1>
+      <div class="brecha-info fade-in">
+        <h2
+          class={`hero-title fade-in stat-card-change ${stats.spreadAmount >= 0 ? "positive" : "negative"}`}
+        >
+          {stats.spreadPercent >= 0 ? "+" : ""}{stats.spreadPercent.toFixed(2)}%
+        </h2>
+        <h3 class="hero-title fade-in stat-card-value">
+          {formatBs(stats.spreadAmount)}
+        </h3>
       </div>
-    </section>
-  </main>
+      <div class="div">
+        <p class="hero-subtitle fade-in">
+          Consulta la variación de dólar BCV, euro y USDT respecto a la tasa
+          anterior, mantente al tanto de la brecha cambiaria y tomas tus
+          previsiones.
+        </p>
+      </div>
+    </div>
+  </section>
 
   <!-- Rate Statistics Section -->
   <RateStatistics rates={rates} stats={stats} />
-
-  <!-- Info Banner -->
-  <section class="info-banner">
-    <div class="container">
-      <div class="banner-content glass-card">
-        <div class="banner-icon">⚠️</div>
-        <div class="banner-text">
-          <h3>Información Importante</h3>
-          <p>
-            El valor del euro es el actualizado del dia y se calcula con base en
-            la cotización del dólar oficial y puede presentar un desfase por
-            fines de semana/feriados del BCV.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-  <section class="info">
-    <div class="container">
-      <DollarChart
-        initialDays={7}
-        height="450px"
-        className="shadow-lg"
-        colors={{
-          oficial: "#2563EB",
-          paralelo: "#16A34A",
-        }}
-        locale="es-VE"
-      />
-    </div>
-  </section>
-  <!-- Currency Converter Section -->
-  <section class="converter-section">
-    <div class="container">
-      <CurrencyConverter rates={rates} />
-    </div>
-  </section>
   <section class="info-banner">
     <div class="container">
       <div class="cta-section">
@@ -126,10 +82,18 @@ const fechaActual = obtenerFechaCorta();
     </div>
   </section>
 
-  <!-- Profit Calculator Section -->
-  <section class="calculator-section">
+  <section class="info">
     <div class="container">
-      <ProfitCalculator rates={rates} />
+      <DollarChart
+        initialDays={7}
+        height="450px"
+        className="shadow-lg"
+        colors={{
+          oficial: "#2563EB",
+          paralelo: "#16A34A",
+        }}
+        locale="es-VE"
+      />
     </div>
   </section>
 
@@ -151,8 +115,6 @@ const fechaActual = obtenerFechaCorta();
     </div>
   </section>
 </Layout>
-
-<Footer />
 
 <style>
   .hero {
@@ -185,7 +147,7 @@ const fechaActual = obtenerFechaCorta();
   }
 
   .info-banner {
-    padding: var(--spacing-2xl) 0;
+    padding: 2px 0;
   }
 
   .banner-content {
@@ -254,7 +216,16 @@ const fechaActual = obtenerFechaCorta();
   .stat-card-change.negative {
     color: #e93030;
   }
-
+  .brecha-info {
+    background: #415474;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    max-width: 400px;
+    justify-content: center;
+    margin: 0 auto;
+  }
   @media (max-width: 768px) {
     .hero-title {
       font-size: 2rem;

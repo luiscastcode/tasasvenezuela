@@ -1,0 +1,56 @@
+---
+import Layout from "../layouts/Layout.astro";
+import CurrencyConverter from "../components/CurrencyConverter.astro";
+import { getRateStats } from "../utils/statistics";
+import { getAllRates } from "../utils/api";
+
+const rates = await getAllRates();
+---
+
+<Layout
+  metatitle="Convertidor de Divisas BCV - Brecha Cambiaria en Venezuela"
+  metadescrip="Calcula el precio real en Bs y en divisas respecto al dolar USDT Binance, Bybit y tasa Euro."
+  slug="convertidor-divisas/"
+>
+  <section class="legal-page">
+    <div class="container">
+      <CurrencyConverter rates={rates} />
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .legal-page {
+    padding: var(--spacing-2xl) 0;
+    min-height: 70vh;
+  }
+
+  .container h1 {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-sm);
+    text-align: center;
+  }
+
+  .legal-content h2 {
+    font-size: 1.5rem;
+    margin-top: var(--spacing-xl);
+    margin-bottom: var(--spacing-md);
+    color: var(--color-accent-primary);
+  }
+
+  .legal-content p {
+    line-height: 1.8;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .legal-content ul {
+    margin-left: var(--spacing-xl);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .legal-content li {
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+    margin-bottom: var(--spacing-xs);
+  }
+</style>

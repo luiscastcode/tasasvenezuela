@@ -1,7 +1,5 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
 ---
 
 <Layout
@@ -9,215 +7,197 @@ import Footer from "../components/Footer.astro";
     metadescrip="Descargo de Responsabilidad - Tasas Venezuela"
     slug="descargo-de-responsabilidad/"
 >
-    <Header />
+    <section class="disclaimer-page">
+        <div class="container">
+            <div class="disclaimer-content glass-card">
+                <!-- Warning Banner -->
+                <div class="warning-banner">
+                    <div class="warning-icon">⚠️</div>
+                    <h1>Descargo de Responsabilidad</h1>
+                </div>
 
-    <main>
-        <section class="disclaimer-page">
-            <div class="container">
-                <div class="disclaimer-content glass-card">
-                    <!-- Warning Banner -->
-                    <div class="warning-banner">
-                        <div class="warning-icon">⚠️</div>
-                        <h1>Descargo de Responsabilidad</h1>
-                    </div>
-
-                    <div class="disclaimer-intro">
-                        <p class="lead">
-                            <strong>IMPORTANTE:</strong> Lea cuidadosamente esta información
-                            antes de utilizar los servicios de Tasas Venezuela.
-                        </p>
-                    </div>
-
-                    <div class="disclaimer-section">
-                        <h2>📊 Naturaleza de la Información</h2>
-                        <p>
-                            La información de tasas de cambio presentada en este
-                            sitio web es de carácter
-                            <strong>estrictamente informativo</strong> y proviene
-                            de fuentes públicas disponibles en Internet. Los datos
-                            son recopilados de APIs públicas y sitios web de terceros.
-                        </p>
-                    </div>
-
-                    <div class="disclaimer-section highlight">
-                        <h2>🚫 No es Información Oficial</h2>
-                        <p>
-                            Las tasas de cambio mostradas <strong
-                                >NO constituyen información oficial</strong
-                            >
-                            del Banco Central de Venezuela (BCV) ni de ninguna otra
-                            institución gubernamental o financiera. Para obtener información
-                            oficial, debe consultar directamente las fuentes autorizadas:
-                        </p>
-                        <ul>
-                            <li>
-                                Banco Central de Venezuela (BCV): <a
-                                    href="https://www.bcv.org.ve"
-                                    target="_blank"
-                                    rel="noopener">www.bcv.org.ve</a
-                                >
-                            </li>
-                            <li>Instituciones financieras autorizadas</li>
-                            <li>Casas de cambio reguladas</li>
-                        </ul>
-                    </div>
-
-                    <div class="disclaimer-section">
-                        <h2>💼 No es Asesoría Financiera</h2>
-                        <p>
-                            La información proporcionada <strong
-                                >NO constituye asesoría financiera, de inversión
-                                o comercial</strong
-                            >. No recomendamos ni respaldamos ninguna decisión
-                            financiera basada únicamente en la información de
-                            este sitio.
-                        </p>
-                        <p>
-                            Antes de tomar cualquier decisión financiera, debe:
-                        </p>
-                        <ul>
-                            <li>
-                                Consultar con un asesor financiero profesional
-                            </li>
-                            <li>
-                                Verificar la información con fuentes oficiales
-                            </li>
-                            <li>Considerar su situación financiera personal</li>
-                            <li>Evaluar los riesgos asociados</li>
-                        </ul>
-                    </div>
-
-                    <div class="disclaimer-section">
-                        <h2>🔄 Exactitud y Actualización</h2>
-                        <p>
-                            Aunque nos esforzamos por proporcionar información
-                            precisa y actualizada:
-                        </p>
-                        <ul>
-                            <li>
-                                <strong>No garantizamos</strong> la exactitud, integridad
-                                o actualidad de los datos
-                            </li>
-                            <li>Las tasas pueden cambiar sin previo aviso</li>
-                            <li>
-                                Pueden existir retrasos en la actualización de
-                                la información
-                            </li>
-                            <li>
-                                Los errores técnicos pueden afectar la precisión
-                                de los datos
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="disclaimer-section">
-                        <h2>⚖️ Limitación de Responsabilidad</h2>
-                        <p>
-                            Tasas Venezuela y sus operadores <strong
-                                >NO serán responsables</strong
-                            > por:
-                        </p>
-                        <ul>
-                            <li>
-                                Pérdidas financieras derivadas del uso de la
-                                información
-                            </li>
-                            <li>
-                                Decisiones comerciales basadas en los datos
-                                proporcionados
-                            </li>
-                            <li>
-                                Errores, omisiones o inexactitudes en la
-                                información
-                            </li>
-                            <li>
-                                Interrupciones del servicio o indisponibilidad
-                                del sitio
-                            </li>
-                            <li>
-                                Daños directos, indirectos, incidentales o
-                                consecuentes
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="disclaimer-section">
-                        <h2>🔗 Fuentes de Datos</h2>
-                        <p>
-                            Nuestros datos provienen de las siguientes fuentes
-                            públicas:
-                        </p>
-                        <ul>
-                            <li>DolarApi.com - Tasas de cambio en Venezuela</li>
-                            <li>CoinGecko - Precios de criptomonedas</li>
-                            <li>
-                                ExchangeRate-API - Conversiones de divisas
-                                internacionales
-                            </li>
-                        </ul>
-                        <p>
-                            No somos responsables de la exactitud o
-                            disponibilidad de estas fuentes externas.
-                        </p>
-                    </div>
-
-                    <div class="disclaimer-section">
-                        <h2>🛠️ Herramientas de Cálculo</h2>
-                        <p>
-                            Las calculadoras y convertidores proporcionados son
-                            herramientas de referencia. Los resultados son
-                            aproximados y deben ser verificados antes de
-                            realizar transacciones comerciales o financieras.
-                        </p>
-                    </div>
-
-                    <div class="disclaimer-section highlight">
-                        <h2>✅ Uso Bajo Su Propio Riesgo</h2>
-                        <p>Al utilizar este sitio web, usted acepta que:</p>
-                        <ul>
-                            <li>
-                                Ha leído y comprendido este descargo de
-                                responsabilidad
-                            </li>
-                            <li>
-                                Utiliza la información bajo su propio riesgo
-                            </li>
-                            <li>
-                                Verificará la información con fuentes oficiales
-                                antes de actuar
-                            </li>
-                            <li>
-                                No responsabilizará a Tasas Venezuela por
-                                decisiones basadas en esta información
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="cta-section">
-                        <div class="cta-box">
-                            <h3>🎯 Recomendación</h3>
-                            <p>
-                                Para transacciones financieras importantes,
-                                siempre consulte fuentes oficiales y busque
-                                asesoría profesional. Este sitio es solo una
-                                herramienta de referencia rápida para
-                                información general.
-                            </p>
-                            <a href="/" class="btn btn-primary"
-                                >Entendido, volver al inicio</a
-                            >
-                        </div>
-                    </div>
-
-                    <p class="last-updated">
-                        Última actualización: Noviembre 2025
+                <div class="disclaimer-intro">
+                    <p class="lead">
+                        <strong>IMPORTANTE:</strong> Lea cuidadosamente esta información
+                        antes de utilizar los servicios de Tasas Venezuela.
                     </p>
                 </div>
-            </div>
-        </section>
-    </main>
 
-    <Footer />
+                <div class="disclaimer-section">
+                    <h2>📊 Naturaleza de la Información</h2>
+                    <p>
+                        La información de tasas de cambio presentada en este
+                        sitio web es de carácter
+                        <strong>estrictamente informativo</strong> y proviene de fuentes
+                        públicas disponibles en Internet. Los datos son recopilados
+                        de APIs públicas y sitios web de terceros.
+                    </p>
+                </div>
+
+                <div class="disclaimer-section highlight">
+                    <h2>🚫 No es Información Oficial</h2>
+                    <p>
+                        Las tasas de cambio mostradas <strong
+                            >NO constituyen información oficial</strong
+                        >
+                        del Banco Central de Venezuela (BCV) ni de ninguna otra institución
+                        gubernamental o financiera. Para obtener información oficial,
+                        debe consultar directamente las fuentes autorizadas:
+                    </p>
+                    <ul>
+                        <li>
+                            Banco Central de Venezuela (BCV): <a
+                                href="https://www.bcv.org.ve"
+                                target="_blank"
+                                rel="noopener">www.bcv.org.ve</a
+                            >
+                        </li>
+                        <li>Instituciones financieras autorizadas</li>
+                        <li>Casas de cambio reguladas</li>
+                    </ul>
+                </div>
+
+                <div class="disclaimer-section">
+                    <h2>💼 No es Asesoría Financiera</h2>
+                    <p>
+                        La información proporcionada <strong
+                            >NO constituye asesoría financiera, de inversión o
+                            comercial</strong
+                        >. No recomendamos ni respaldamos ninguna decisión
+                        financiera basada únicamente en la información de este
+                        sitio.
+                    </p>
+                    <p>Antes de tomar cualquier decisión financiera, debe:</p>
+                    <ul>
+                        <li>Consultar con un asesor financiero profesional</li>
+                        <li>Verificar la información con fuentes oficiales</li>
+                        <li>Considerar su situación financiera personal</li>
+                        <li>Evaluar los riesgos asociados</li>
+                    </ul>
+                </div>
+
+                <div class="disclaimer-section">
+                    <h2>🔄 Exactitud y Actualización</h2>
+                    <p>
+                        Aunque nos esforzamos por proporcionar información
+                        precisa y actualizada:
+                    </p>
+                    <ul>
+                        <li>
+                            <strong>No garantizamos</strong> la exactitud, integridad
+                            o actualidad de los datos
+                        </li>
+                        <li>Las tasas pueden cambiar sin previo aviso</li>
+                        <li>
+                            Pueden existir retrasos en la actualización de la
+                            información
+                        </li>
+                        <li>
+                            Los errores técnicos pueden afectar la precisión de
+                            los datos
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="disclaimer-section">
+                    <h2>⚖️ Limitación de Responsabilidad</h2>
+                    <p>
+                        Tasas Venezuela y sus operadores <strong
+                            >NO serán responsables</strong
+                        > por:
+                    </p>
+                    <ul>
+                        <li>
+                            Pérdidas financieras derivadas del uso de la
+                            información
+                        </li>
+                        <li>
+                            Decisiones comerciales basadas en los datos
+                            proporcionados
+                        </li>
+                        <li>
+                            Errores, omisiones o inexactitudes en la información
+                        </li>
+                        <li>
+                            Interrupciones del servicio o indisponibilidad del
+                            sitio
+                        </li>
+                        <li>
+                            Daños directos, indirectos, incidentales o
+                            consecuentes
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="disclaimer-section">
+                    <h2>🔗 Fuentes de Datos</h2>
+                    <p>
+                        Nuestros datos provienen de las siguientes fuentes
+                        públicas:
+                    </p>
+                    <ul>
+                        <li>DolarApi.com - Tasas de cambio en Venezuela</li>
+                        <li>CoinGecko - Precios de criptomonedas</li>
+                        <li>
+                            ExchangeRate-API - Conversiones de divisas
+                            internacionales
+                        </li>
+                    </ul>
+                    <p>
+                        No somos responsables de la exactitud o disponibilidad
+                        de estas fuentes externas.
+                    </p>
+                </div>
+
+                <div class="disclaimer-section">
+                    <h2>🛠️ Herramientas de Cálculo</h2>
+                    <p>
+                        Las calculadoras y convertidores proporcionados son
+                        herramientas de referencia. Los resultados son
+                        aproximados y deben ser verificados antes de realizar
+                        transacciones comerciales o financieras.
+                    </p>
+                </div>
+
+                <div class="disclaimer-section highlight">
+                    <h2>✅ Uso Bajo Su Propio Riesgo</h2>
+                    <p>Al utilizar este sitio web, usted acepta que:</p>
+                    <ul>
+                        <li>
+                            Ha leído y comprendido este descargo de
+                            responsabilidad
+                        </li>
+                        <li>Utiliza la información bajo su propio riesgo</li>
+                        <li>
+                            Verificará la información con fuentes oficiales
+                            antes de actuar
+                        </li>
+                        <li>
+                            No responsabilizará a Tasas Venezuela por decisiones
+                            basadas en esta información
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="cta-section">
+                    <div class="cta-box">
+                        <h3>🎯 Recomendación</h3>
+                        <p>
+                            Para transacciones financieras importantes, siempre
+                            consulte fuentes oficiales y busque asesoría
+                            profesional. Este sitio es solo una herramienta de
+                            referencia rápida para información general.
+                        </p>
+                        <a href="/" class="btn btn-primary"
+                            >Entendido, volver al inicio</a
+                        >
+                    </div>
+                </div>
+
+                <p class="last-updated">Última actualización: Noviembre 2025</p>
+            </div>
+        </div>
+    </section>
 </Layout>
 
 <style>
