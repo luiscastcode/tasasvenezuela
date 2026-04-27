@@ -1,3 +1,17 @@
+// Nueva función para histórico del dólar paralelo (USDT)
+async function fetchHistoricalRatesParalelo(): Promise<{ fecha: string; promedio: number }[]> {
+  try {
+    const response = await fetch('https://ve.dolarapi.com/v1/historicos/dolares/paralelo');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching historical rates paralelo:', error);
+    return [];
+  }
+}
 import type { ExchangeRate } from "./api";
 
 export interface RateHistoryPoint {
@@ -69,27 +83,34 @@ function normalizeHistory(values: number[], target: number): number[] {
 }
 
 async function buildHistoryPoints(rate: ExchangeRate, days: number, seed = 0, usdRate?: ExchangeRate): Promise<RateHistorySeries> {
-  // Try to fetch real historical data
-  const historicalData = await fetchHistoricalRates();
+  // Obtener datos históricos reales según el tipo de tasa
+  let historicalData: { fecha: string; promedio: number }[] = [];
+  if (rate.code === "USD") {
+    historicalData = await fetchHistoricalRates();
+  } else if (rate.code === "USDT") {
+    historicalData = await fetchHistoricalRatesParalelo();
+  } else {
+    historicalData = await fetchHistoricalRates();
+  }
 
-  if (historicalData.length > 0 && rate.code === "USD") {
-    // Use real data from API for USD
+  if (historicalData.length > 0 && (rate.code === "USD" || rate.code === "USDT")) {
+    // Usar datos reales de la API para USD (oficial) y USDT (paralelo)
     const today = new Date();
     const cutoffDate = new Date(today);
     cutoffDate.setDate(today.getDate() - days);
 
-    // Filter and sort data by date (most recent first)
+    // Filtrar y ordenar datos por fecha
     const filteredData = historicalData
       .filter(item => new Date(item.fecha) >= cutoffDate)
       .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
-      .slice(-days); // Take the last 'days' entries
+      .slice(-days);
 
     const points = filteredData.map((item) => ({
       date: formatShortDate(new Date(item.fecha)),
       rate: item.promedio,
     }));
 
-    // If we don't have enough data, fill with current rate
+    // Si faltan datos, rellenar con la tasa actual
     while (points.length < days) {
       const date = new Date(today);
       date.setDate(today.getDate() - (days - points.length));
