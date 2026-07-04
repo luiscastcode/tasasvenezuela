@@ -155,11 +155,13 @@ const { rates } = Astro.props;
         font-size: 1.75rem;
         text-align: center;
         margin-bottom: var(--spacing-sm);
+        color: var(--color-text-dark) !important;
+        padding: var(--spacing-md);
     }
 
     .converter-description {
         text-align: center;
-        color: var(--color-text-muted);
+        color: var(--color-text-dark) !important;
         margin-bottom: var(--spacing-xl);
     }
 
@@ -177,7 +179,7 @@ const { rates } = Astro.props;
     .input-label {
         font-size: 0.9rem;
         font-weight: 600;
-        color: var(--color-text-secondary);
+        color: var(--color-text-dark);
     }
 
     .input-field {
@@ -192,7 +194,7 @@ const { rates } = Astro.props;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: chartreuse;
+        background: rgb(155, 160, 151);
         border: none;
         border-radius: 50%;
         color: black;
@@ -224,8 +226,8 @@ const { rates } = Astro.props;
         font-size: 2rem;
         font-weight: 700;
         padding: var(--spacing-lg);
-        background: rgb(157, 238, 52);
-        border: 1px solid var(--color-border);
+        background: rgb(167, 203, 206);
+        border: 1px solid #2e2d2d7e;
         border-radius: var(--radius-lg);
         text-align: center;
         color: #111;
