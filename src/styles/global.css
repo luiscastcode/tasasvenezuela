@@ -1,39 +1,59 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+ /* =========================================================
+   GLOBAL CSS — Dashboard de Tasas de Cambio (Venezuela)
+   Estilo: Bybit / Trading Terminal
+   Stack: AstroJS + Bootstrap 5
+   ========================================================= */
 
+/* =========================================================
+   1. DESIGN TOKENS
+   ========================================================= */
 :root {
-  /* Dark Theme Colors */
-  --color-bg-primary: #0a0e1a;
-  --color-bg-secondary: #111827;
-  --color-bg-card: rgba(17, 24, 39, 0.6);
-  --color-bg-card-hover: rgba(31, 41, 55, 0.8);
+  /* ===== BACKGROUNDS ===== */
+  --color-bg-primary: #0B0E11;
+  --color-bg-secondary: #181A20;
+  --color-bg-card: #181A20;
+  --color-bg-card-hover: #1E2329;
+  --color-bg-elevated: #22262E;
 
-  /* Vibrant Accents */
-  --color-accent-primary: #3b82f6;
-  --color-accent-secondary: #8b5cf6;
-  --color-accent-success: #10b981;
-  --color-accent-warning: #f59e0b;
-  --color-accent-danger: #ef4444;
+  /* ===== ACENTOS ===== */
+  --color-accent-primary: #FCD535;
+  --color-accent-primary-hover: #F0B90B;
+  --color-accent-secondary: #2962FF;
+  --color-accent-success: #0ECB81;
+  --color-accent-warning: #FCD535;
+  --color-accent-danger: #F6465D;
 
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #e3e6f0 0%, #bcb0c7 100%);
-  --gradient-success: linear-gradient(135deg, #93d85b 0%, #6da010 100%);
-  --gradient-card: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  /* ===== SEMÁNTICA TRADING ===== */
+  --color-up: #0ECB81;
+  --color-up-bg: rgba(14, 203, 129, 0.1);
+  --color-down: #F6465D;
+  --color-down-bg: rgba(246, 70, 93, 0.1);
+  --color-neutral: #848E9C;
 
-  /* Text Colors */
-  --color-text-primary: #f9fafb;
-  --color-text-secondary: #d1d5db;
-  --color-text-muted: #9ca3af;
-  --color-text-dark: #111827;
+  /* ===== GRADIENTS ===== */
+  --gradient-success: linear-gradient(135deg, #0ECB81 0%, #0AA06A 100%);
+  --gradient-glow: radial-gradient(circle at 50% 0%, rgba(252, 213, 53, 0.08) 0%, transparent 60%);
 
-  /* Border & Effects */
-  --color-border: rgba(255, 255, 255, 0.1);
-  --color-border-hover: rgba(255, 255, 255, 0.2);
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.5);
+  /* ===== TEXTO ===== */
+  --color-text-primary: #EAECEF;
+  --color-text-secondary: #B7BDC6;
+  --color-text-muted: #848E9C;
+  --color-text-dark: #0B0E11;
 
-  /* Spacing */
+  /* ===== BORDES ===== */
+  --color-border: #2B3139;
+  --color-border-hover: #3A4149;
+  --color-border-strong: #474D57;
+
+  /* ===== SOMBRAS ===== */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 16px 40px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(252, 213, 53, 0.15);
+
+  /* ===== SPACING ===== */
   --spacing-xs: 0.5rem;
   --spacing-sm: 0.75rem;
   --spacing-md: 1rem;
@@ -41,18 +61,25 @@
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
 
-  /* Border Radius */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  /* ===== RADIOS ===== */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
 
-  /* Transitions */
-  --transition-fast: 150ms ease-in-out;
-  --transition-base: 250ms ease-in-out;
-  --transition-slow: 350ms ease-in-out;
+  /* ===== TRANSICIONES ===== */
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+
+  /* ===== LAYOUT ===== */
+  --container-max: 1280px;
+  --header-height: 64px;
 }
 
+/* =========================================================
+   2. RESET / BASE
+   ========================================================= */
 * {
   margin: 0;
   padding: 0;
@@ -61,6 +88,7 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -70,62 +98,51 @@ body {
   line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Animated Background */
+/* Glow sutil superior (reemplaza el fondo animado) */
 body::before {
   content: '';
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
-  background:
-    radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 40% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+  height: 600px;
+  background: var(--gradient-glow);
   z-index: -1;
-  animation: backgroundPulse 15s ease-in-out infinite;
+  pointer-events: none;
 }
 
-@keyframes backgroundPulse {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.7;
-  }
-}
-
-/* Typography */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+/* =========================================================
+   3. TIPOGRAFÍA
+   ========================================================= */
+h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: var(--spacing-md);
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
 }
 
 h1 {
   font-size: 2.5rem;
-  background: var(--gradient-primary);
-   
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 h2 {
   font-size: 2rem;
-  color: var(--color-text-primary);
 }
 
 h3 {
   font-size: 1.5rem;
-  color: var(--color-text-primary);
+}
+
+h4 {
+  font-size: 1.25rem;
 }
 
 p {
@@ -133,179 +150,529 @@ p {
   color: var(--color-text-secondary);
 }
 
- 
-
-/* Glass Card Effect */
-.glass-card {
-  background: var(--gradient-primary);  
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-md);
-  box-shadow: var(--shadow-lg);
-  transition: all var(--transition-base);
+a {
+  color: var(--color-accent-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
 }
 
-.glass-card:hover { 
-  border-color: var(--color-border-hover);
-  box-shadow: var(--shadow-xl);
-  transform: translateY(-4px);
+a:hover {
+  color: var(--color-accent-primary-hover);
 }
 
-/* Grid Layouts */
+/* Números tabulares — CRÍTICO para tasas */
+.tabular-nums,
+.tasa-valor,
+.card-tasa-valor,
+.ticker__value,
+.brecha-destacada__porcentaje {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* =========================================================
+   4. LAYOUT / CONTAINER
+   ========================================================= */
+.container-app {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+section {
+  padding: var(--spacing-2xl) 0;
+}
+
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-lg);
+}
+
+.section-subtitle {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  margin-bottom: var(--spacing-xl);
+}
+
+/* =========================================================
+   5. GRID SYSTEM
+   ========================================================= */
 .grid {
   display: grid;
   gap: var(--spacing-lg);
 }
 
-.grid-cols-1 {
-  grid-template-columns: repeat(1, 1fr);
-}
-
-.grid-cols-2 {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.grid-cols-3 {
-  grid-template-columns: repeat(3, 1fr);
-}
+.grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
 
 @media (max-width: 1024px) {
-  .grid-cols-3 {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .grid-cols-3 { grid-template-columns: repeat(2, 1fr); }
+  .grid-cols-4 { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 640px) {
-
   .grid-cols-2,
-  .grid-cols-3 {
+  .grid-cols-3,
+  .grid-cols-4 {
     grid-template-columns: repeat(1, 1fr);
   }
 
-  h1 {
-    font-size: 2rem;
-  }
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
 
-  h2 {
-    font-size: 1.5rem;
+  section { padding: var(--spacing-xl) 0; }
+}
+
+/* =========================================================
+   6. CARDS
+   ========================================================= */
+.glass-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-lg);
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card:hover {
+  background: var(--color-bg-card-hover);
+  border-color: var(--color-border-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Card de tasa (BCV, Paralelo, USDT...) */
+.tasa-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  transition: all var(--transition-base);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.tasa-card:hover {
+  background: var(--color-bg-card-hover);
+  border-color: var(--color-border-hover);
+  transform: translateY(-2px);
+}
+
+.tasa-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.tasa-card__label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tasa-card__value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.tasa-card__value .currency {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  margin-left: 4px;
+  font-weight: 500;
+}
+
+.tasa-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: auto;
+}
+
+/* =========================================================
+   7. BADGES (variación up/down)
+   ========================================================= */
+.badge-up,
+.badge-down,
+.badge-neutral {
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.4;
+}
+
+.badge-up {
+  background: var(--color-up-bg);
+  color: var(--color-up);
+}
+
+.badge-down {
+  background: var(--color-down-bg);
+  color: var(--color-down);
+}
+
+.badge-neutral {
+  background: rgba(132, 142, 156, 0.1);
+  color: var(--color-neutral);
+}
+
+/* =========================================================
+   8. BRECHA CAMBIARIA (dato destacado)
+   ========================================================= */
+.brecha-destacada {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.brecha-destacada::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-accent-primary), transparent);
+}
+
+.brecha-destacada__label {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+}
+
+.brecha-destacada__porcentaje {
+  font-size: 3.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--color-accent-primary);
+}
+
+.brecha-destacada__porcentaje.is-up {
+  color: var(--color-up);
+}
+
+.brecha-destacada__porcentaje.is-down {
+  color: var(--color-down);
+}
+
+.brecha-destacada__meta {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-top: var(--spacing-sm);
+}
+
+@media (max-width: 640px) {
+  .brecha-destacada__porcentaje {
+    font-size: 2.5rem;
+  }
+  .brecha-destacada {
+    padding: var(--spacing-lg);
   }
 }
 
-/* Buttons */
+/* =========================================================
+   9. TICKER (cinta deslizante)
+   ========================================================= */
+.ticker {
+  background: var(--color-bg-secondary);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--spacing-sm) 0;
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+}
+
+.ticker::before,
+.ticker::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 60px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.ticker::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--color-bg-secondary), transparent);
+}
+
+.ticker::after {
+  right: 0;
+  background: linear-gradient(270deg, var(--color-bg-secondary), transparent);
+}
+
+.ticker__track {
+  display: inline-flex;
+  align-items: center;
+  animation: tickerScroll 40s linear infinite;
+}
+
+.ticker:hover .ticker__track {
+  animation-play-state: paused;
+}
+
+.ticker__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 var(--spacing-lg);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  border-right: 1px solid var(--color-border);
+}
+
+.ticker__label {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.ticker__value {
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+@keyframes tickerScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* =========================================================
+   10. BOTONES
+   ========================================================= */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   padding: var(--spacing-sm) var(--spacing-lg);
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   border-radius: var(--radius-md);
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
   transition: all var(--transition-base);
   text-decoration: none;
+  line-height: 1.2;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-accent-primary);
+  outline-offset: 2px;
 }
 
 .btn-primary {
-  background: var(--gradient-card);
-  color: white;
-  box-shadow: var(--shadow-md);
+  background: var(--color-accent-primary);
+  color: var(--color-text-dark);
+  font-weight: 700;
 }
 
 .btn-primary:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
+  background: var(--color-accent-primary-hover);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-1px);
+  color: var(--color-text-dark);
 }
 
 .btn-secondary {
   background: var(--color-bg-secondary);
   color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
+  border-color: var(--color-border);
 }
 
 .btn-secondary:hover {
   border-color: var(--color-border-hover);
-  background: var(--color-bg-card);
+  background: var(--color-bg-card-hover);
+  color: var(--color-text-primary);
 }
 
-/* Input Fields */
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-color: transparent;
+}
+
+.btn-ghost:hover {
+  background: var(--color-bg-card-hover);
+  color: var(--color-text-primary);
+}
+
+.btn-sm {
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: 0.8125rem;
+}
+
+.btn-lg {
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: 1rem;
+}
+
+/* =========================================================
+   11. INPUTS / SELECTS
+   ========================================================= */
 input,
-select {
+select,
+textarea {
   width: 100%;
   padding: var(--spacing-sm) var(--spacing-md);
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-family: inherit;
   background: var(--color-bg-secondary);
   color: var(--color-text-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   transition: all var(--transition-base);
+  font-variant-numeric: tabular-nums;
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: var(--color-border-hover);
 }
 
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
   outline: none;
   border-color: var(--color-accent-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(252, 213, 53, 0.12);
+  background: var(--color-bg-elevated);
 }
 
-input::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: var(--color-text-muted);
 }
 
-/* Sections */
-section {
-  padding: var(--spacing-2xl) 0;
+/* Quitar flechas de input number */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
 }
 
-/* Utility Classes */
-.text-center {
-  text-align: center;
+/* =========================================================
+   12. TABLAS (histórico)
+   ========================================================= */
+.tabla-tasas {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
 }
 
-.text-muted {
+.tabla-tasas thead th {
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--color-text-muted);
+  font-weight: 600;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
 }
 
-.mb-sm {
-  margin-bottom: var(--spacing-sm);
+.tabla-tasas tbody td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
 }
 
-.mb-md {
-  margin-bottom: var(--spacing-md);
+.tabla-tasas tbody tr:hover {
+  background: var(--color-bg-card-hover);
 }
 
-.mb-lg {
-  margin-bottom: var(--spacing-lg);
+.tabla-tasas tbody tr:last-child td {
+  border-bottom: none;
 }
 
-.mb-xl {
-  margin-bottom: var(--spacing-xl);
+/* =========================================================
+   13. UTILIDADES
+   ========================================================= */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-muted { color: var(--color-text-muted); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-primary { color: var(--color-text-primary); }
+.text-up { color: var(--color-up); }
+.text-down { color: var(--color-down); }
+.text-accent { color: var(--color-accent-primary); }
+
+.mb-sm { margin-bottom: var(--spacing-sm); }
+.mb-md { margin-bottom: var(--spacing-md); }
+.mb-lg { margin-bottom: var(--spacing-lg); }
+.mb-xl { margin-bottom: var(--spacing-xl); }
+
+.mt-sm { margin-top: var(--spacing-sm); }
+.mt-md { margin-top: var(--spacing-md); }
+.mt-lg { margin-top: var(--spacing-lg); }
+.mt-xl { margin-top: var(--spacing-xl); }
+
+.d-flex { display: flex; }
+.align-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-sm { gap: var(--spacing-sm); }
+.gap-md { gap: var(--spacing-md); }
+.gap-lg { gap: var(--spacing-lg); }
+
+.divider {
+  height: 1px;
+  background: var(--color-border);
+  border: none;
+  margin: var(--spacing-lg) 0;
 }
 
-.mt-sm {
-  margin-top: var(--spacing-sm);
-}
-
-.mt-md {
-  margin-top: var(--spacing-md);
-}
-
-.mt-lg {
-  margin-top: var(--spacing-lg);
-}
-
-.mt-xl {
-  margin-top: var(--spacing-xl);
-}
-
-/* Animations */
+/* =========================================================
+   14. ANIMACIONES
+   ========================================================= */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(12px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -313,21 +680,169 @@ section {
 }
 
 .fade-in {
-  animation: fadeIn 0.6s ease-out;
+  animation: fadeIn 0.5s ease-out both;
 }
 
 @keyframes pulse {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.8;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 .pulse {
   animation: pulse 2s ease-in-out infinite;
+}
+
+/* Skeleton loader */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-card) 25%,
+    var(--color-bg-card-hover) 50%,
+    var(--color-bg-card) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+  color: transparent;
+  user-select: none;
+}
+
+/* Punto de "live" (actualización en vivo) */
+.live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-up);
+  box-shadow: 0 0 0 0 rgba(14, 203, 129, 0.7);
+  animation: livePulse 2s infinite;
+}
+
+@keyframes livePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(14, 203, 129, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(14, 203, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(14, 203, 129, 0);
+  }
+}
+
+/* =========================================================
+   15. OVERRIDES BOOTSTRAP 5
+   (van al final para ganar especificidad)
+   ========================================================= */
+
+/* Reset de variables Bootstrap para que no rompan el dark theme */
+:root {
+  --bs-body-bg: var(--color-bg-primary);
+  --bs-body-color: var(--color-text-primary);
+  --bs-border-color: var(--color-border);
+  --bs-primary: var(--color-accent-primary);
+  --bs-secondary: var(--color-bg-secondary);
+  --bs-link-color: var(--color-accent-primary);
+  --bs-link-hover-color: var(--color-accent-primary-hover);
+}
+
+/* Body de Bootstrap alineado con nuestro tema */
+body {
+  background-color: var(--color-bg-primary) !important;
+  color: var(--color-text-primary);
+}
+
+/* Cards de Bootstrap */
+.card {
+  background-color: var(--color-bg-card);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+/* Modales de Bootstrap (por si se usan) */
+.modal-content {
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+}
+
+/* Dropdown de Bootstrap */
+.dropdown-menu {
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+}
+
+.dropdown-item {
+  color: var(--color-text-secondary);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background-color: var(--color-bg-card-hover);
+  color: var(--color-text-primary);
+}
+
+/* Navbar de Bootstrap */
+.navbar {
+  background-color: var(--color-bg-primary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.navbar-brand,
+.nav-link {
+  color: var(--color-text-primary) !important;
+}
+
+.nav-link:hover {
+  color: var(--color-accent-primary) !important;
+}
+
+/* Scrollbar custom (Chromium + Firefox) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 10px;
+  border: 2px solid var(--color-bg-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-strong);
+}
+
+html {
+  scrollbar-color: var(--color-border) var(--color-bg-primary);
+  scrollbar-width: thin;
+}
+
+/* Selección de texto */
+::selection {
+  background: var(--color-accent-primary);
+  color: var(--color-text-dark);
+}
+
+/* =========================================================
+   16. REDUCED MOTION (accesibilidad)
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

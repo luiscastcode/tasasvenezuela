@@ -1,242 +1,530 @@
----
+ ---
 import type { ExchangeRate } from "../utils/api";
 
 interface Props {
-    rates: ExchangeRate[];
+  rates: ExchangeRate[];
 }
 
 const { rates } = Astro.props;
 ---
 
-<div class="converter glass-card">
-    <h1 class="converter-title">Convertidor de Divisas</h1>
-   
-    <p class="converter-description">
-        Calcula el precio de manera rapida en Bs o en tu divisa favorita usando las tasas actualizadas del Dólar BCV, Euro y USDT en Venezuela. Simplemente ingresa el monto, selecciona la divisa y obtén el resultado al instante.
-    </p>
-
-    <div class="converter-form">
-        <div class="input-group">
-            <label for="amount" class="input-label">Monto</label>
-            <input
-                type="number"
-                id="amount"
-                class="input-field"
-                placeholder="0.00"
-                value="1"
-                min="0"
-                step="0.01"
-            />
-        </div>
-
-        <div class="input-group">
-            <label for="currency" class="input-label">Divisa</label>
-            <select id="currency" class="input-field">
-                {
-                    rates.map((rate) => (
-                        <option value={`${rate.code}:${rate.rate}`}>
-                            {rate.name} ({rate.symbol})
-                        </option>
-                    ))
-                }
-            </select>
-        </div>
-
-        <button id="swap-btn" class="swap-btn" title="Invertir conversión">
-            <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-            >
-                <path d="M7 16V4M7 4L3 8M7 4L11 8"></path>
-                <path d="M17 8V20M17 20L21 16M17 20L13 16"></path>
-            </svg>
-        </button>
-
-        <div class="result-group">
-            <label class="input-label">Resultado en Bs</label>
-            <div class="result-display" id="result">Bs. 0.00</div>
-        </div>
+<div class="converter" data-rates={JSON.stringify(rates)}>
+  <header class="converter__header">
+    <div class="converter__header-left">
+      <h2 class="converter__title">Convertidor en tiempo real</h2>
+      <p class="converter__subtitle">
+        Ingresa un monto y selecciona la divisa
+      </p>
     </div>
+    <span class="converter__live">
+      <span class="live-dot"></span>
+      Live
+    </span>
+  </header>
+
+  <div class="converter__body">
+    <!-- ============ INPUT ORIGEN ============ -->
+    <div class="converter__field">
+      <label for="amount" class="converter__label" id="amount-label">
+        Monto
+      </label>
+      <div class="converter__input-wrapper">
+        <input
+          type="number"
+          id="amount"
+          class="converter__input"
+          placeholder="0.00"
+          value="1"
+          min="0"
+          step="0.01"
+          inputmode="decimal"
+          autocomplete="off"
+        />
+        <span class="converter__input-suffix" id="amount-suffix">USD</span>
+      </div>
+    </div>
+
+    <!-- ============ BOTÓN SWAP ============ -->
+    <button
+      id="swap-btn"
+      class="converter__swap"
+      type="button"
+      title="Invertir conversión"
+      aria-label="Invertir dirección de conversión"
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M7 16V4M7 4L3 8M7 4L11 8"></path>
+        <path d="M17 8V20M17 20L21 16M17 20L13 16"></path>
+      </svg>
+    </button>
+
+    <!-- ============ SELECTOR DE DIVISA ============ -->
+    <div class="converter__field" id="currency-field">
+      <label for="currency" class="converter__label">
+        Divisa
+      </label>
+      <div class="converter__select-wrapper">
+        <select id="currency" class="converter__select">
+          {
+            rates.map((rate) => (
+              <option value={`${rate.code}:${rate.rate}`}>
+                {rate.name} ({rate.symbol}) — {rate.rate.toFixed(2)} Bs.
+              </option>
+            ))
+          }
+        </select>
+        <svg
+          class="converter__select-chevron"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- ============ RESULTADO ============ -->
+    <div class="converter__result" id="result-group">
+      <div class="converter__result-label-row">
+        <span class="converter__label" id="result-label">
+          Resultado
+        </span>
+        <span class="converter__rate-info" id="rate-info">
+          Tasa: 1 USD = 0,00 Bs.
+        </span>
+      </div>
+      <div class="converter__result-display" id="result" aria-live="polite">
+        Bs. 0,00
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-    // Currency converter logic
-    let isReversed = false;
+  // ============================================
+  // ESTADO
+  // ============================================
+  let isReversed = false;
 
-    const amountInput = document.getElementById("amount") as HTMLInputElement;
-    const currencySelect = document.getElementById(
-        "currency",
-    ) as HTMLSelectElement;
-    const swapBtn = document.getElementById("swap-btn") as HTMLButtonElement;
-    const resultDisplay = document.getElementById("result") as HTMLDivElement;
+  const amountInput = document.getElementById("amount") as HTMLInputElement;
+  const currencySelect = document.getElementById("currency") as HTMLSelectElement;
+  const swapBtn = document.getElementById("swap-btn") as HTMLButtonElement;
+  const resultDisplay = document.getElementById("result") as HTMLDivElement;
+  const amountLabel = document.getElementById("amount-label") as HTMLLabelElement;
+  const amountSuffix = document.getElementById("amount-suffix") as HTMLSpanElement;
+  const resultLabel = document.getElementById("result-label") as HTMLSpanElement;
+  const rateInfo = document.getElementById("rate-info") as HTMLSpanElement;
+  const currencyField = document.getElementById("currency-field") as HTMLDivElement;
 
-    function formatBs(amount: number): string {
-        return new Intl.NumberFormat("es-VE", {
-            style: "currency",
-            currency: "VES",
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        }).format(amount);
+  // ============================================
+  // FORMATEADORES
+  // ============================================
+  function formatBs(amount: number): string {
+    return new Intl.NumberFormat("es-VE", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount) + " Bs.";
+  }
+
+  function formatNumber(amount: number): string {
+    return new Intl.NumberFormat("es-VE", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  }
+
+  // ============================================
+  // LÓGICA
+  // ============================================
+  function convert() {
+    const amount = parseFloat(amountInput.value) || 0;
+    const [code, rateStr] = currencySelect.value.split(":");
+    const rate = parseFloat(rateStr);
+
+    const selectedOption = currencySelect.options[currencySelect.selectedIndex];
+    const symbolMatch = selectedOption.text.match(/\(([^)]+)\)/);
+    const symbol = symbolMatch ? symbolMatch[1] : "$";
+
+    // Info de la tasa activa
+    rateInfo.textContent = `Tasa: 1 ${code} = ${formatNumber(rate)} Bs.`;
+
+    let resultText: string;
+
+    if (isReversed) {
+      // Bs → Divisa
+      const result = rate > 0 ? amount / rate : 0;
+      resultText = `${symbol} ${formatNumber(result)}`;
+      amountSuffix.textContent = "Bs.";
+    } else {
+      // Divisa → Bs
+      const result = amount * rate;
+      resultText = formatBs(result);
+      amountSuffix.textContent = code;
     }
 
-    function formatCurrency(amount: number, symbol: string): string {
-        return `${symbol}${new Intl.NumberFormat("es-VE", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        }).format(amount)}`;
+    resultDisplay.textContent = resultText;
+    resultDisplay.classList.add("pulse");
+    setTimeout(() => resultDisplay.classList.remove("pulse"), 500);
+  }
+
+  function swap() {
+    isReversed = !isReversed;
+    swapBtn.classList.toggle("reversed");
+
+    if (isReversed) {
+      amountLabel.textContent = "Monto en Bs";
+      resultLabel.textContent = "Resultado en Divisa";
+      currencyField.style.opacity = "0.4";
+      currencyField.style.pointerEvents = "none";
+    } else {
+      amountLabel.textContent = "Monto";
+      resultLabel.textContent = "Resultado";
+      currencyField.style.opacity = "1";
+      currencyField.style.pointerEvents = "auto";
     }
 
-    function convert() {
-        const amount = parseFloat(amountInput.value) || 0;
-        const [code, rateStr] = currencySelect.value.split(":");
-        const rate = parseFloat(rateStr);
-
-        // Get currency symbol
-        const selectedOption =
-            currencySelect.options[currencySelect.selectedIndex];
-        const symbolMatch = selectedOption.text.match(/\((.)\)/);
-        const symbol = symbolMatch ? symbolMatch[1] : "$";
-
-        let result: number;
-        let resultText: string;
-
-        if (isReversed) {
-            // Bs to Foreign Currency
-            result = amount / rate;
-            resultText = formatCurrency(result, symbol);
-        } else {
-            // Foreign Currency to Bs
-            result = amount * rate;
-            resultText = formatBs(result);
-        }
-
-        resultDisplay.textContent = resultText;
-        resultDisplay.classList.add("pulse");
-        setTimeout(() => resultDisplay.classList.remove("pulse"), 600);
-    }
-
-    function swap() {
-        isReversed = !isReversed;
-        swapBtn.classList.toggle("reversed");
-
-        // Update labels
-        const labels = document.querySelectorAll(".input-label");
-        if (isReversed) {
-            labels[0].textContent = "Monto en Bs";
-            labels[2].textContent = "Resultado en Divisa";
-        } else {
-            labels[0].textContent = "Monto";
-            labels[2].textContent = "Resultado";
-        }
-
-        convert();
-    }
-
-    // Event listeners
-    amountInput.addEventListener("input", convert);
-    currencySelect.addEventListener("change", convert);
-    swapBtn.addEventListener("click", swap);
-
-    // Initial conversion
     convert();
+  }
+
+  // ============================================
+  // EVENT LISTENERS
+  // ============================================
+  amountInput.addEventListener("input", convert);
+  currencySelect.addEventListener("change", convert);
+  swapBtn.addEventListener("click", swap);
+
+  // Conversión inicial
+  convert();
 </script>
 
 <style>
-    .converter {
-        max-width: 600px;
-        margin: 0 auto;
+  /* ============================================
+     WRAPPER
+     ============================================ */
+  .converter {
+    max-width: 560px;
+    margin: 0 auto;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Línea de acento arriba */
+  .converter::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-accent-primary),
+      transparent
+    );
+  }
+
+  /* ============================================
+     HEADER
+     ============================================ */
+  .converter__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg-secondary);
+  }
+
+  .converter__title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 2px;
+    line-height: 1.2;
+  }
+
+  .converter__subtitle {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .converter__live {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.6875rem;
+    color: var(--color-up);
+    background: var(--color-up-bg);
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ============================================
+     BODY
+     ============================================ */
+  .converter__body {
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  /* ============================================
+     CAMPOS
+     ============================================ */
+  .converter__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: opacity var(--transition-fast);
+  }
+
+  .converter__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .converter__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+  }
+
+  .converter__input-wrapper:hover {
+    border-color: var(--color-border-hover);
+  }
+
+  .converter__input-wrapper:focus-within {
+    border-color: var(--color-accent-primary);
+    box-shadow: 0 0 0 3px rgba(252, 213, 53, 0.12);
+  }
+
+  .converter__input {
+    flex: 1;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    padding: var(--spacing-md);
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+    min-width: 0;
+  }
+
+  .converter__input:focus {
+    outline: none;
+  }
+
+  .converter__input-suffix {
+    padding: 0 var(--spacing-md);
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-left: 1px solid var(--color-border);
+    line-height: 1;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  /* ============================================
+     SELECTOR
+     ============================================ */
+  .converter__select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+  }
+
+  .converter__select-wrapper:hover {
+    border-color: var(--color-border-hover);
+  }
+
+  .converter__select-wrapper:focus-within {
+    border-color: var(--color-accent-primary);
+    box-shadow: 0 0 0 3px rgba(252, 213, 53, 0.12);
+  }
+
+  .converter__select {
+    flex: 1;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: var(--color-text-primary);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    padding: var(--spacing-md);
+    padding-right: 40px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .converter__select:focus {
+    outline: none;
+  }
+
+  .converter__select option {
+    background: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+    padding: 8px;
+  }
+
+  .converter__select-chevron {
+    position: absolute;
+    right: 14px;
+    color: var(--color-text-muted);
+    pointer-events: none;
+  }
+
+  /* ============================================
+     BOTÓN SWAP
+     ============================================ */
+  .converter__swap {
+    width: 42px;
+    height: 42px;
+    margin: -4px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-accent-primary);
+    border: 3px solid var(--color-bg-card);
+    border-radius: 50%;
+    color: var(--color-text-dark);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    position: relative;
+    z-index: 2;
+    box-shadow: var(--shadow-md);
+  }
+
+  .converter__swap:hover {
+    transform: scale(1.08);
+    box-shadow: var(--shadow-glow);
+  }
+
+  .converter__swap:active {
+    transform: scale(0.96);
+  }
+
+  .converter__swap:focus-visible {
+    outline: 2px solid var(--color-accent-primary);
+    outline-offset: 3px;
+  }
+
+  .converter__swap.reversed svg {
+    transform: rotate(180deg);
+    transition: transform var(--transition-base);
+  }
+
+  .converter__swap svg {
+    transition: transform var(--transition-base);
+  }
+
+  /* ============================================
+     RESULTADO
+     ============================================ */
+  .converter__result {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: var(--spacing-xs);
+  }
+
+  .converter__result-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+  }
+
+  .converter__rate-info {
+    font-size: 0.6875rem;
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+
+  .converter__result-display {
+    font-size: 2rem;
+    font-weight: 800;
+    padding: var(--spacing-lg);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    color: var(--color-accent-primary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    transition: all var(--transition-base);
+    line-height: 1.2;
+  }
+
+  /* ============================================
+     RESPONSIVE
+     ============================================ */
+  @media (max-width: 640px) {
+    .converter__body {
+      padding: var(--spacing-md);
     }
 
-    .converter-title {
-        font-size: 1.75rem;
-        text-align: center;
-        margin-bottom: var(--spacing-sm);
-        color: var(--color-text-dark) !important;
-        padding: var(--spacing-md);
+    .converter__input {
+      font-size: 1.25rem;
     }
 
-    .converter-description {
-        text-align: center;
-        color: var(--color-text-dark) !important;
-        margin-bottom: var(--spacing-xl);
+    .converter__result-display {
+      font-size: 1.5rem;
+      padding: var(--spacing-md);
     }
 
-    .converter-form {
-        display: grid;
-        gap: var(--spacing-lg);
+    .converter__title {
+      font-size: 0.875rem;
     }
-
-    .input-group {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-xs);
-    }
-
-    .input-label {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--color-text-dark);
-    }
-
-    .input-field {
-        font-size: 1.1rem;
-        padding: var(--spacing-md);
-    }
-
-    .swap-btn {
-        width: 48px;
-        height: 48px;
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgb(155, 160, 151);
-        border: none;
-        border-radius: 50%;
-        color: black;
-        cursor: pointer;
-        transition: all var(--transition-base);
-        box-shadow: var(--shadow-md);
-    }
-
-    .swap-btn:hover {
-        transform: scale(1.1);
-        box-shadow: var(--shadow-lg);
-    }
-
-    .swap-btn.reversed {
-        transform: rotate(180deg);
-    }
-
-    .swap-btn.reversed:hover {
-        transform: rotate(180deg) scale(1.1);
-    }
-
-    .result-group {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-xs);
-    }
-
-    .result-display {
-        font-size: 2rem;
-        font-weight: 700;
-        padding: var(--spacing-lg);
-        background: rgb(167, 203, 206);
-        border: 1px solid #2e2d2d7e;
-        border-radius: var(--radius-lg);
-        text-align: center;
-        color: #111;
-        transition: all var(--transition-base);
-    }
-
-    @media (max-width: 640px) {
-        .result-display {
-            font-size: 1.5rem;
-        }
-    }
+  }
 </style>

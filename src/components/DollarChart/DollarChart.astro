@@ -21,47 +21,44 @@ const {
 // Obtener y procesar datos en el servidor
 const rawData = await fetchDollarHistorical();
 
-// Procesar datos (agrupar por fecha)
 function processData(data: any[]) {
   const grouped = new Map<string, { time: string; oficial: number; paralelo: number }>();
-  
+
   data.forEach((item) => {
     if (!item.fecha) return;
-    
-    const existing = grouped.get(item.fecha) || { 
-      time: item.fecha, 
-      oficial: 0, 
-      paralelo: 0 
+
+    const existing = grouped.get(item.fecha) || {
+      time: item.fecha,
+      oficial: 0,
+      paralelo: 0,
     };
-    
+
     if (item.fuente === 'oficial' && typeof item.promedio === 'number') {
       existing.oficial = item.promedio;
     } else if (item.fuente === 'paralelo' && typeof item.promedio === 'number') {
       existing.paralelo = item.promedio;
     }
-    
+
     grouped.set(item.fecha, existing);
   });
-  
+
   return Array.from(grouped.values())
-    .filter(d => d.oficial > 0 || d.paralelo > 0)
+    .filter((d) => d.oficial > 0 || d.paralelo > 0)
     .sort((a, b) => a.time.localeCompare(b.time));
 }
 
 const allProcessed = processData(rawData);
 
-// Filtrar por días iniciales
 const cutoffDate = new Date();
 cutoffDate.setDate(cutoffDate.getDate() - initialDays);
-const initialData = allProcessed.filter(d => new Date(d.time) >= cutoffDate);
+const initialData = allProcessed.filter((d) => new Date(d.time) >= cutoffDate);
 
-// Configuración de colores
+// ✅ Colores Bybit por defecto
 const chartColors = {
-  oficial: colors.oficial ?? '#2563EB',
-  paralelo: colors.paralelo ?? '#16A34A',
+  oficial: colors.oficial ?? '#2962FF',  // azul info
+  paralelo: colors.paralelo ?? '#0ECB81', // verde Bybit
 };
 
-// Serializar para el cliente
 const allDataJSON = JSON.stringify(allProcessed);
 const initialDataJSON = JSON.stringify(initialData);
 const colorsJSON = JSON.stringify(chartColors);
@@ -69,7 +66,14 @@ const colorsJSON = JSON.stringify(chartColors);
 
 <div class={`dollar-chart-wrapper ${className}`} data-locale={locale}>
   <header class="chart-header">
-    <h3 class="chart-title">Evolución de la Brecha Cambiaria USDT/BCV en Venezuela</h3>
+    <div class="chart-header__left">
+      <h3 class="chart-title">
+        Evolución de la Brecha Cambiaria
+      </h3>
+      <p class="chart-subtitle">
+        BCV vs USDT · últimos {initialDays} días
+      </p>
+    </div>
     <div class="filter-group" role="tablist" aria-label="Período de tiempo">
       {[7, 15, 30].map((days) => (
         <button
@@ -85,26 +89,26 @@ const colorsJSON = JSON.stringify(chartColors);
     </div>
   </header>
 
-  <div 
-    id="dollar-chart" 
-    class="chart-container" 
+  <div
+    id="dollar-chart"
+    class="chart-container"
     style={`height: ${height};`}
     data-all={allDataJSON}
     data-initial={initialDataJSON}
     data-colors={colorsJSON}
     data-locale={locale}
-    aria-label="Gráfico de evolución del dólar"
+    aria-label="Gráfico de evolución del dólar BCV y USDT"
     role="img"
   ></div>
 
   <footer class="chart-legend">
     <span class="legend-item">
       <span class="legend-dot" style={`background: ${chartColors.oficial}`}></span>
-      BCV
+      <span class="legend-label">BCV</span>
     </span>
     <span class="legend-item">
       <span class="legend-dot" style={`background: ${chartColors.paralelo}`}></span>
-      USDT
+      <span class="legend-label">USDT</span>
     </span>
   </footer>
 </div>
@@ -112,116 +116,132 @@ const colorsJSON = JSON.stringify(chartColors);
 <script>
   import { createChart, ColorType, CrosshairMode, LineSeries } from 'lightweight-charts';
 
-  (function() {
+  (function () {
     function init() {
       const chartEl = document.getElementById('dollar-chart');
       if (!chartEl) return;
 
-      // Parsear datos del dataset
       const allData = JSON.parse(chartEl.dataset.all || '[]');
       const chartColors = JSON.parse(chartEl.dataset.colors || '{}');
       const locale = chartEl.dataset.locale || 'es-VE';
-      
+
       let chart = null;
 
-      // Función para filtrar datos por días
       function filterByDays(data, days) {
         const cutoff = new Date();
         cutoff.setDate(cutoff.getDate() - days);
         cutoff.setHours(0, 0, 0, 0);
-        return data.filter(d => new Date(d.time) >= cutoff);
+        return data.filter((d) => new Date(d.time) >= cutoff);
       }
 
-      // Función para formatear fechas
       function formatDate(dateStr) {
         const [year, month, day] = dateStr.split('-');
         return `${day}/${month}/${year}`;
       }
 
-      // Función para crear/actualizar el gráfico
+      function formatBs(value) {
+        return new Intl.NumberFormat(locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value) + ' Bs.';
+      }
+
       async function renderChart(days) {
         const dataToShow = filterByDays(allData, days);
-        
         if (dataToShow.length === 0) return;
 
-        // Limpiar contenedor
         chartEl.innerHTML = '';
-        
-        // Obtener dimensiones
+
         const width = chartEl.clientWidth || 800;
         const height = chartEl.clientHeight || 400;
 
-        // Crear gráfico
         if (chart) chart.remove();
-        
+
+        // ✅ Configuración Bybit dark theme
         chart = createChart(chartEl, {
           width,
           height,
           layout: {
-            background: { type: ColorType.Solid, color: '#ffffff' },
-            textColor: '#64748B',
+            background: { type: ColorType.Solid, color: '#181A20' },
+            textColor: '#848E9C',
+            fontSize: 11,
+            fontFamily:
+              'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
           },
           grid: {
-            vertLines: { color: '#E2E8F0', visible: true },
-            horzLines: { color: '#E2E8F0', visible: true },
+            vertLines: { color: 'rgba(255, 255, 255, 0.04)', visible: true },
+            horzLines: { color: 'rgba(255, 255, 255, 0.04)', visible: true },
           },
           timeScale: {
             timeVisible: true,
-            borderColor: '#E2E8F0',
+            borderColor: '#2B3139',
           },
           rightPriceScale: {
-            borderColor: '#E2E8F0',
+            borderColor: '#2B3139',
             autoScale: true,
+            scaleMargins: { top: 0.15, bottom: 0.1 },
           },
           crosshair: {
             mode: CrosshairMode.Normal,
+            vertLine: {
+              color: '#474D57',
+              width: 1,
+              style: 3,
+              labelBackgroundColor: '#2B3139',
+            },
+            horzLine: {
+              color: '#474D57',
+              width: 1,
+              style: 3,
+              labelBackgroundColor: '#2B3139',
+            },
           },
           localization: {
-            priceFormatter: (price) => {
-              return new Intl.NumberFormat(locale, {
-                style: 'currency',
-                currency: 'VES',
-                minimumFractionDigits: 2,
-              }).format(price).replace('VES', 'Bs.');
-            },
+            priceFormatter: (price) => formatBs(price),
           },
         });
 
-        // Crear series
         const oficialSeries = chart.addSeries(LineSeries, {
           color: chartColors.oficial,
           lineWidth: 2,
           priceLineVisible: true,
           lastValueVisible: true,
+          crosshairMarkerVisible: true,
+          crosshairMarkerRadius: 4,
+          crosshairMarkerBorderColor: '#181A20',
         });
-        
+
         const paraleloSeries = chart.addSeries(LineSeries, {
           color: chartColors.paralelo,
           lineWidth: 2,
           priceLineVisible: true,
           lastValueVisible: true,
+          crosshairMarkerVisible: true,
+          crosshairMarkerRadius: 4,
+          crosshairMarkerBorderColor: '#181A20',
         });
 
-        // Preparar y establecer datos
         const oficialData = dataToShow
-          .map(d => ({ time: d.time, value: d.oficial }))
-          .filter(d => d.value > 0);
-          
+          .map((d) => ({ time: d.time, value: d.oficial }))
+          .filter((d) => d.value > 0);
+
         const paraleloData = dataToShow
-          .map(d => ({ time: d.time, value: d.paralelo }))
-          .filter(d => d.value > 0);
+          .map((d) => ({ time: d.time, value: d.paralelo }))
+          .filter((d) => d.value > 0);
 
         oficialSeries.setData(oficialData);
         paraleloSeries.setData(paraleloData);
-        
         chart.timeScale().fitContent();
 
-        // Tooltip básico
+        // ✅ Tooltip Bybit-style
         const tooltip = document.createElement('div');
         tooltip.style.cssText = `
-          position: absolute; display: none; padding: 8px 12px;
-          background: #1E293B; color: #F8FAFC; border-radius: 6px;
-          font-size: 12px; pointer-events: none; z-index: 100;
+          position: absolute; display: none; padding: 10px 12px;
+          background: #22262E; color: #EAECEF; border-radius: 8px;
+          border: 1px solid #2B3139; font-size: 12px; font-family: Inter, sans-serif;
+          pointer-events: none; z-index: 100;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+          font-variant-numeric: tabular-nums;
         `;
         chartEl.appendChild(tooltip);
 
@@ -231,19 +251,29 @@ const colorsJSON = JSON.stringify(chartColors);
             return;
           }
 
-          const dataPoint = dataToShow.find(d => d.time === param.time);
+          const dataPoint = dataToShow.find((d) => d.time === param.time);
           if (!dataPoint) {
             tooltip.style.display = 'none';
             return;
           }
 
           tooltip.style.display = 'block';
-          tooltip.style.left = `${param.point.x + 15}px`;
-          tooltip.style.top = `${param.point.y - 60}px`;
+          tooltip.style.left = `${Math.min(param.point.x + 15, chartEl.clientWidth - 200)}px`;
+          tooltip.style.top = `${Math.max(param.point.y - 80, 10)}px`;
           tooltip.innerHTML = `
-            <div style="font-weight:600;margin-bottom:4px">${formatDate(param.time)}</div>
-            <div style="color:#60A5FA">BCV: ${dataPoint.oficial.toFixed(2)} Bs.</div>
-            <div style="color:#34D399">USDT: ${dataPoint.paralelo.toFixed(2)} Bs.</div>
+            <div style="font-weight:600;margin-bottom:6px;color:#848E9C;font-size:11px;letter-spacing:0.05em;text-transform:uppercase">
+              ${formatDate(param.time)}
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+              <span style="width:8px;height:8px;border-radius:50%;background:${chartColors.oficial}"></span>
+              <span style="color:#B7BDC6">BCV</span>
+              <strong style="margin-left:auto;color:#EAECEF">${dataPoint.oficial.toFixed(2)} Bs.</strong>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="width:8px;height:8px;border-radius:50%;background:${chartColors.paralelo}"></span>
+              <span style="color:#B7BDC6">USDT</span>
+              <strong style="margin-left:auto;color:#EAECEF">${dataPoint.paralelo.toFixed(2)} Bs.</strong>
+            </div>
           `;
         });
 
@@ -251,7 +281,6 @@ const colorsJSON = JSON.stringify(chartColors);
           tooltip.style.display = 'none';
         });
 
-        // Observer para resize
         const resizeObserver = new ResizeObserver(() => {
           if (chart && chartEl.clientWidth > 0) {
             chart.applyOptions({
@@ -263,27 +292,23 @@ const colorsJSON = JSON.stringify(chartColors);
         resizeObserver.observe(chartEl);
       }
 
-      // Configurar listeners de botones
       const filterGroup = document.querySelector('.filter-group');
       filterGroup?.addEventListener('click', (e) => {
         const btn = e.target.closest('.filter-btn');
         if (btn) {
           const days = parseInt(btn.dataset.days);
-          
-          // Actualizar UI
-          document.querySelectorAll('.filter-btn').forEach(b => {
+
+          document.querySelectorAll('.filter-btn').forEach((b) => {
             b.classList.remove('active');
             b.setAttribute('aria-selected', 'false');
           });
           btn.classList.add('active');
           btn.setAttribute('aria-selected', 'true');
-          
-          // Renderizar
+
           renderChart(days);
         }
       });
 
-      // Renderizado inicial
       const activeBtn = document.querySelector('.filter-btn.active');
       const initialDays = activeBtn ? parseInt(activeBtn.dataset.days) : 15;
       renderChart(initialDays);
@@ -298,74 +323,127 @@ const colorsJSON = JSON.stringify(chartColors);
 </script>
 
 <style>
+  /* ============================================
+     WRAPPER
+     ============================================ */
   .dollar-chart-wrapper {
-    background: #ffffff;
-    border-radius: 12px;
-    border: 1px solid #E2E8F0;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
     overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    position: relative;
   }
 
+  .dollar-chart-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-accent-primary),
+      transparent
+    );
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* ============================================
+     HEADER
+     ============================================ */
   .chart-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 20px;
-    border-bottom: 1px solid #E2E8F0;
-    background: #F8FAFC;
-    gap: 12px;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+    gap: var(--spacing-md);
     flex-wrap: wrap;
+  }
+
+  .chart-header__left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
   .chart-title {
     font-size: 1rem;
-    font-weight: 600;
-    color: #1E293B;
+    font-weight: 700;
+    color: var(--color-text-primary);
     margin: 0;
+    line-height: 1.2;
   }
 
+  .chart-subtitle {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  /* ============================================
+     FILTROS (7D / 15D / 30D)
+     ============================================ */
   .filter-group {
     display: flex;
-    gap: 4px;
-    background: #E2E8F0;
-    padding: 4px;
-    border-radius: 8px;
+    gap: 2px;
+    background: var(--color-bg-secondary);
+    padding: 3px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
   }
 
   .filter-btn {
     padding: 6px 14px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #64748B;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
     background: transparent;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: all 0.15s;
+    transition: all var(--transition-fast);
     min-width: 44px;
+    font-family: inherit;
   }
 
   .filter-btn:hover {
-    color: #1E293B;
-    background: #FFFFFF;
+    color: var(--color-text-primary);
+    background: var(--color-bg-card-hover);
   }
 
   .filter-btn.active {
-    background: #2563EB;
-    color: #FFFFFF;
+    background: var(--color-accent-primary);
+    color: var(--color-text-dark);
   }
 
+  .filter-btn:focus-visible {
+    outline: 2px solid var(--color-accent-primary);
+    outline-offset: 2px;
+  }
+
+  /* ============================================
+     CHART CONTAINER
+     ============================================ */
   .chart-container {
     width: 100%;
     position: relative;
+    background: var(--color-bg-card);
   }
 
+  /* ============================================
+     LEYENDA
+     ============================================ */
   .chart-legend {
     display: flex;
-    gap: 20px;
-    padding: 12px 20px;
-    border-top: 1px solid #E2E8F0;
-    background: #F8FAFC;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-secondary);
     justify-content: center;
   }
 
@@ -373,25 +451,39 @@ const colorsJSON = JSON.stringify(chartColors);
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.875rem;
-    color: #64748B;
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+    font-weight: 500;
   }
 
   .legend-dot {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
+    flex-shrink: 0;
   }
 
+  /* ============================================
+     RESPONSIVE
+     ============================================ */
   @media (max-width: 640px) {
     .chart-header {
       flex-direction: column;
       align-items: flex-start;
+      padding: var(--spacing-md);
     }
-    
+
     .filter-group {
       width: 100%;
       justify-content: center;
+    }
+
+    .filter-btn {
+      flex: 1;
+    }
+
+    .chart-legend {
+      padding: var(--spacing-sm) var(--spacing-md);
     }
   }
 </style>

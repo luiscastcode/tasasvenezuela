@@ -1,4 +1,4 @@
----
+ ---
 import type { ExchangeRate } from "../utils/api";
 
 interface Props {
@@ -8,424 +8,753 @@ interface Props {
 const { rates } = Astro.props;
 ---
 
-<div class="calculator glass-card" data-rates={JSON.stringify(rates)}>
-  <h1 class="calculator-title">Calculadora de Precios</h1>
-  <p class="calculator-description">
-    Si eres comerciante puedes calcular el precio de venta de tu producto con
-    margen de ganancia deseado
-  </p>
-
-  <div class="calculator-form">
-    <div class="input-ro">
-      <div class="input-group flex-1">
-        <label for="cost" class="input-label">Costo del Producto</label>
-        <input
-          type="number"
-          id="cost"
-          class="input-field"
-          placeholder="0.00"
-          value="100"
-          min="0"
-          step="0.01"
-        />
-      </div>
-
-      <div class="input-group">
-        <label for="cost-currency" class="input-label">Divisa del Costo</label>
-        <select id="cost-currency" class="input-field">
-          <option value="VES:1">Bolívares (Bs)</option>
-          {
-            rates.map((rate) => (
-              <option value={`${rate.code}:${rate.rate}`}>
-                {rate.code} ({rate.symbol})
-              </option>
-            ))
-          }
-        </select>
-      </div>
+<div class="calculator" data-rates={JSON.stringify(rates)}>
+  <header class="calculator__header">
+    <div class="calculator__header-left">
+      <h2 class="calculator__title">Calculadora de margen</h2>
+      <p class="calculator__subtitle">
+        Precio de venta con margen deseado
+      </p>
     </div>
+    <span class="calculator__live">
+      <span class="live-dot"></span>
+      Live
+    </span>
+  </header>
 
-    <div class="input-group">
-      <div class="margin-header">
-        <label for="margin" class="input-label"
-          >Margen de Ganancia Deseado (%)</label
-        >
-        <span class="margin-value" id="margin-display">30%</span>
-      </div>
-      <input
-        type="range"
-        id="margin"
-        class="slider"
-        min="0"
-        max="35"
-        value="30"
-        step="1"
-      />
-      <div class="slider-labels">
-        <span>0%</span>
-        <span>35%</span>
-      </div>
-    </div>
-
-    <div class="results">
-      <div class="result-item">
-        <span class="result-label">Costo en Bs:</span>
-        <span class="result-value" id="cost-bs">Bs. 100.00</span>
-      </div>
-
-      <div class="result-item">
-        <span class="result-label">Ganancia:</span>
-        <span class="result-value success" id="profit">Bs. 42.86</span>
-      </div>
-
-      <div class="result-item highlight">
-        <span class="result-label">Precio de Venta en Bs:</span>
-        <span class="result-value large" id="sale-price-bs">Bs. 142.86</span>
-      </div>
-
-      <div class="currency-prices">
-        <h3 class="currency-prices-title">Precios a Publicar por Divisa</h3>
-        <div class="currency-grid" id="currency-grid">
-          <!-- Currency prices will be inserted here -->
+  <div class="calculator__body">
+    <!-- ============================================
+         FILA 1: COSTO + DIVISA
+         ============================================ -->
+    <div class="calculator__row">
+      <div class="calculator__field calculator__field--grow">
+        <label for="cost" class="calculator__label">Costo del producto</label>
+        <div class="calculator__input-wrapper">
+          <input
+            type="number"
+            id="cost"
+            class="calculator__input"
+            placeholder="0.00"
+            value="100"
+            min="0"
+            step="0.01"
+            inputmode="decimal"
+          />
         </div>
+      </div>
+
+      <div class="calculator__field">
+        <label for="cost-currency" class="calculator__label">
+          Divisa del costo
+        </label>
+        <div class="calculator__select-wrapper">
+          <select id="cost-currency" class="calculator__select">
+            <option value="VES:1">Bs (Bolívares)</option>
+            {
+              rates.map((rate) => (
+                <option value={`${rate.code}:${rate.rate}`}>
+                  {rate.code} ({rate.symbol})
+                </option>
+              ))
+            }
+          </select>
+          <svg
+            class="calculator__select-chevron"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================
+         FILA 2: SLIDER DE MARGEN
+         ============================================ -->
+    <div class="calculator__field">
+      <div class="calculator__margin-header">
+        <label for="margin" class="calculator__label">
+          Margen de ganancia
+        </label>
+        <span class="calculator__margin-value" id="margin-display">30%</span>
+      </div>
+
+      <div class="slider-wrapper">
+        <input
+          type="range"
+          id="margin"
+          class="slider"
+          min="0"
+          max="70"
+          value="30"
+          step="1"
+          aria-label="Margen de ganancia en porcentaje"
+        />
+        <div class="slider-track-labels">
+          <span>0%</span>
+          <span>35%</span>
+          <span>70%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================
+         RESULTADOS PRINCIPALES
+         ============================================ -->
+    <div class="calculator__results">
+      <div class="result-row">
+        <span class="result-row__label">Costo en Bs</span>
+        <span class="result-row__value" id="cost-bs">Bs. 0,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row__label">Ganancia</span>
+        <span class="result-row__value result-row__value--up" id="profit">
+          Bs. 0,00
+        </span>
+      </div>
+
+      <div class="result-highlight">
+        <div class="result-highlight__header">
+          <span class="result-highlight__label">Precio de venta</span>
+          <span class="result-highlight__badge" id="margin-badge">+30%</span>
+        </div>
+        <div class="result-highlight__value" id="sale-price-bs">
+          Bs. 0,00
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================
+         PRECIOS POR DIVISA
+         ============================================ -->
+    <div class="calculator__currencies">
+      <h3 class="calculator__currencies-title">
+        Precios a publicar por divisa
+      </h3>
+      <div class="currency-grid" id="currency-grid">
+        <!-- Se llena con JS -->
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  // Get rates from data attribute
-  const calculatorElement = document.querySelector(
-    ".calculator",
-  ) as HTMLElement;
+  // ============================================
+  // DATOS
+  // ============================================
+  const calculatorElement = document.querySelector(".calculator") as HTMLElement;
   const ratesData = calculatorElement?.dataset.rates;
-  const rates = ratesData ? JSON.parse(ratesData) : [];
+  const rates: any[] = ratesData ? JSON.parse(ratesData) : [];
 
+  // ============================================
+  // REFERENCIAS
+  // ============================================
   const costInput = document.getElementById("cost") as HTMLInputElement;
-  const costCurrencySelect = document.getElementById(
-    "cost-currency",
-  ) as HTMLSelectElement;
+  const costCurrencySelect = document.getElementById("cost-currency") as HTMLSelectElement;
   const marginSlider = document.getElementById("margin") as HTMLInputElement;
-  const marginDisplay = document.getElementById(
-    "margin-display",
-  ) as HTMLSpanElement;
+  const marginDisplay = document.getElementById("margin-display") as HTMLSpanElement;
+  const marginBadge = document.getElementById("margin-badge") as HTMLSpanElement;
   const costBsDisplay = document.getElementById("cost-bs") as HTMLSpanElement;
   const profitDisplay = document.getElementById("profit") as HTMLSpanElement;
-  const salePriceBsDisplay = document.getElementById(
-    "sale-price-bs",
-  ) as HTMLSpanElement;
-  const currencyGrid = document.getElementById(
-    "currency-grid",
-  ) as HTMLDivElement;
+  const salePriceBsDisplay = document.getElementById("sale-price-bs") as HTMLSpanElement;
+  const currencyGrid = document.getElementById("currency-grid") as HTMLDivElement;
 
+  // ============================================
+  // FORMATEADORES
+  // ============================================
   function formatBs(amount: number): string {
-    return new Intl.NumberFormat("es-VE", {
-      style: "currency",
-      currency: "VES",
+    return "Bs. " + new Intl.NumberFormat("es-VE", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);
   }
 
-  function formatCurrency(amount: number, decimals: number = 2): string {
+  function formatNumber(amount: number, decimals = 2): string {
     return new Intl.NumberFormat("es-VE", {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
     }).format(amount);
   }
 
+  // ============================================
+  // LÓGICA
+  // ============================================
   function calculate() {
     const cost = parseFloat(costInput.value) || 0;
     const [currency, rateStr] = costCurrencySelect.value.split(":");
     const rate = parseFloat(rateStr);
     const marginPercent = parseFloat(marginSlider.value);
 
-    // Update margin display
+    // UI updates
     marginDisplay.textContent = `${marginPercent}%`;
+    marginBadge.textContent = `+${marginPercent}%`;
 
-    // Calculate cost in Bs
+    // Actualizar fill del slider (variable CSS)
+    const percent = (marginPercent / parseFloat(marginSlider.max)) * 100;
+    marginSlider.style.setProperty("--slider-fill", `${percent}%`);
+
+    // Cálculo
     const costInBs = cost * rate;
-
-    // NEW FORMULA: Precio de venta = Costo / (1 – Margen deseado)
-    // Convert margin percentage to decimal (e.g., 30% -> 0.30)
     const marginDecimal = marginPercent / 100;
-
-    // Calculate sale price using the new formula
-    const salePriceInBs =
-      marginDecimal >= 1 ? 0 : costInBs / (1 - marginDecimal);
-
-    // Calculate profit
+    const salePriceInBs = marginDecimal >= 1 ? 0 : costInBs / (1 - marginDecimal);
     const profit = salePriceInBs - costInBs;
 
-    // Update main displays
+    // Render
     costBsDisplay.textContent = formatBs(costInBs);
     profitDisplay.textContent = formatBs(profit);
     salePriceBsDisplay.textContent = formatBs(salePriceInBs);
 
-    // Add pulse animation
+    // Animación pulse
     salePriceBsDisplay.classList.add("pulse");
-    setTimeout(() => salePriceBsDisplay.classList.remove("pulse"), 600);
+    setTimeout(() => salePriceBsDisplay.classList.remove("pulse"), 500);
 
-    // Calculate and display prices in all currencies
     displayCurrencyPrices(salePriceInBs);
   }
 
   function displayCurrencyPrices(salePriceInBs: number) {
-    // Clear previous content
     currencyGrid.innerHTML = "";
 
-    // Create price cards for each currency
     rates.forEach((rate: any) => {
-      const priceInCurrency = salePriceInBs / rate.rate;
+      const priceInCurrency = rate.rate > 0 ? salePriceInBs / rate.rate : 0;
 
       const card = document.createElement("div");
       card.className = "currency-card";
-
       card.innerHTML = `
-                <div class="currency-name">${rate.name}</div>
-                <div class="currency-code">${rate.code}</div>
-                <div class="currency-price">${rate.symbol} ${formatCurrency(priceInCurrency)}</div>
-            `;
+        <div class="currency-card__header">
+          <span class="currency-card__code">${rate.code}</span>
+          <span class="currency-card__symbol">${rate.symbol}</span>
+        </div>
+        <div class="currency-card__name">${rate.name}</div>
+        <div class="currency-card__price">
+          ${rate.symbol} ${formatNumber(priceInCurrency)}
+        </div>
+        <div class="currency-card__rate">
+          1 ${rate.code} = ${formatNumber(rate.rate)} Bs.
+        </div>
+      `;
 
       currencyGrid.appendChild(card);
     });
   }
 
-  // Event listeners
+  // ============================================
+  // EVENT LISTENERS
+  // ============================================
   costInput.addEventListener("input", calculate);
   costCurrencySelect.addEventListener("change", calculate);
   marginSlider.addEventListener("input", calculate);
 
-  // Initial calculation
+  // Init
   calculate();
 </script>
 
 <style>
+  /* ============================================
+     WRAPPER
+     ============================================ */
   .calculator {
-    max-width: 700px;
+    max-width: 720px;
     margin: 0 auto;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    position: relative;
+    box-shadow: var(--shadow-lg);
   }
 
-  .calculator-title {
-    font-size: 1.75rem;
-        text-align: center;
-        margin-bottom: var(--spacing-sm);
-        color: var(--color-text-dark) !important;
-        padding: var(--spacing-md);
+  .calculator::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-accent-primary),
+      transparent
+    );
   }
 
-  .calculator-description {
-    text-align: center;
-    color: var(--color-text-dark) !important;
-    margin-bottom: var(--spacing-xl);
-  }
-
-  .calculator-form {
-    display: grid;
-    gap: var(--spacing-xl);
-  }
-
-  .input-row {
+  /* ============================================
+     HEADER
+     ============================================ */
+  .calculator__header {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg-secondary);
     gap: var(--spacing-md);
   }
 
-  .flex-1 {
-    flex: 1;
+  .calculator__title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 2px;
+    line-height: 1.2;
   }
 
-  .input-group {
+  .calculator__subtitle {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .calculator__live {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.6875rem;
+    color: var(--color-up);
+    background: var(--color-up-bg);
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+
+  /* ============================================
+     BODY
+     ============================================ */
+  .calculator__body {
+    padding: var(--spacing-lg);
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-lg);
   }
 
-  .input-label {
-    font-size: 0.9rem;
+  /* ============================================
+     ROW: COSTO + DIVISA
+     ============================================ */
+  .calculator__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .calculator__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .calculator__field--grow {
+    grid-column: span 1;
+  }
+
+  .calculator__label {
+    font-size: 0.75rem;
     font-weight: 600;
-    color: var(--color-text-dark);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
-  .input-field {
-    font-size: 1.1rem;
+  /* Input */
+  .calculator__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+  }
+
+  .calculator__input-wrapper:hover {
+    border-color: var(--color-border-hover);
+  }
+
+  .calculator__input-wrapper:focus-within {
+    border-color: var(--color-accent-primary);
+    box-shadow: 0 0 0 3px rgba(252, 213, 53, 0.12);
+  }
+
+  .calculator__input {
+    flex: 1;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
     padding: var(--spacing-md);
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+    min-width: 0;
   }
 
-  .margin-header {
+  .calculator__input:focus {
+    outline: none;
+  }
+
+  /* Select */
+  .calculator__select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+  }
+
+  .calculator__select-wrapper:hover {
+    border-color: var(--color-border-hover);
+  }
+
+  .calculator__select-wrapper:focus-within {
+    border-color: var(--color-accent-primary);
+    box-shadow: 0 0 0 3px rgba(252, 213, 53, 0.12);
+  }
+
+  .calculator__select {
+    flex: 1;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: var(--color-text-primary);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    padding: var(--spacing-md);
+    padding-right: 40px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .calculator__select:focus {
+    outline: none;
+  }
+
+  .calculator__select-chevron {
+    position: absolute;
+    right: 14px;
+    color: var(--color-text-muted);
+    pointer-events: none;
+  }
+
+  /* ============================================
+     SLIDER
+     ============================================ */
+  .calculator__margin-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
 
-  .margin-value {
-    font-size: 1.1rem;
-    font-weight: 700;
+  .calculator__margin-value {
+    font-size: 1.125rem;
+    font-weight: 800;
     color: var(--color-accent-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .slider-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-sm);
   }
 
   .slider {
     width: 100%;
-    height: 8px;
-    border-radius: 5px;
-    background: var(--color-bg-secondary);
+    height: 6px;
+    border-radius: 999px;
+    background: linear-gradient(
+      to right,
+      var(--color-accent-primary) 0%,
+      var(--color-accent-primary) var(--slider-fill, 43%),
+      var(--color-bg-secondary) var(--slider-fill, 43%),
+      var(--color-bg-secondary) 100%
+    );
     outline: none;
     -webkit-appearance: none;
     appearance: none;
+    cursor: pointer;
+    border: 1px solid var(--color-border);
   }
 
   .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    background: var(--gradient-primary);
+    background: var(--color-accent-primary);
     cursor: pointer;
-    box-shadow: var(--shadow-md);
-    transition: all var(--transition-base);
+    border: 3px solid var(--color-bg-card);
+    box-shadow: 0 0 0 1px var(--color-accent-primary), var(--shadow-md);
+    transition: transform var(--transition-fast);
   }
 
   .slider::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
-    box-shadow: var(--shadow-lg);
+    transform: scale(1.15);
   }
 
   .slider::-moz-range-thumb {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    background: var(--gradient-primary);
+    background: var(--color-accent-primary);
     cursor: pointer;
-    border: none;
-    box-shadow: var(--shadow-md);
-    transition: all var(--transition-base);
+    border: 3px solid var(--color-bg-card);
+    box-shadow: 0 0 0 1px var(--color-accent-primary), var(--shadow-md);
+    transition: transform var(--transition-fast);
   }
 
   .slider::-moz-range-thumb:hover {
-    transform: scale(1.2);
-    box-shadow: var(--shadow-lg);
+    transform: scale(1.15);
   }
 
-  .slider-labels {
+  .slider:focus-visible {
+    outline: none;
+  }
+
+  .slider:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px rgba(252, 213, 53, 0.3), 0 0 0 1px var(--color-accent-primary);
+  }
+
+  .slider-track-labels {
     display: flex;
     justify-content: space-between;
-    font-size: 0.8rem;
+    font-size: 0.6875rem;
     color: var(--color-text-muted);
-    margin-top: var(--spacing-xs);
+    font-variant-numeric: tabular-nums;
   }
 
-  .results {
-    display: grid;
-    gap: var(--spacing-md);
-    padding: var(--spacing-lg);
-    background: rgb(40, 80, 145);;
+  /* ============================================
+     RESULTADOS
+     ============================================ */
+  .calculator__results {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    background: var(--color-bg-secondary);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
   }
 
-  .result-item {
+  .result-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--spacing-sm) 0;
+    padding: var(--spacing-xs) 0;
+    gap: var(--spacing-md);
   }
 
-  .result-item.highlight {
-    padding: var(--spacing-md);
-    background: rgba(59, 130, 246, 0.1);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--color-accent-primary);
-  }
-
-  .result-label {
-    font-size: 1rem;
-    color: var(--color-text-primary);
+  .result-row__label {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
     font-weight: 500;
   }
 
-  .result-value {
-    font-size: 1.25rem;
+  .result-row__value {
+    font-size: 1rem;
     font-weight: 700;
     color: var(--color-text-primary);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
   }
 
-  .result-value.success {
-    color: var(--color-accent-success);
+  .result-row__value--up {
+    color: var(--color-up);
   }
 
-  .result-value.large {
+  /* Highlight: precio de venta */
+  .result-highlight {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: var(--spacing-md);
+    background: rgba(252, 213, 53, 0.06);
+    border: 1px solid rgba(252, 213, 53, 0.25);
+    border-radius: var(--radius-md);
+    margin-top: var(--spacing-xs);
+  }
+
+  .result-highlight__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .result-highlight__label {
+    font-size: 0.75rem;
+    color: var(--color-accent-primary);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .result-highlight__badge {
+    font-size: 0.75rem;
+    color: var(--color-text-dark);
+    background: var(--color-accent-primary);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .result-highlight__value {
     font-size: 1.75rem;
-    background: yellow;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-weight: 800;
+    color: var(--color-accent-primary);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
   }
 
-  .currency-prices {
-    margin-top: var(--spacing-lg);
-    padding-top: var(--spacing-lg);
+  /* ============================================
+     PRECIOS POR DIVISA
+     ============================================ */
+  .calculator__currencies {
+    padding-top: var(--spacing-md);
     border-top: 1px solid var(--color-border);
   }
 
-  .currency-prices-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--color-text-secondary);
-    margin-bottom: var(--spacing-md);
+  .calculator__currencies-title {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 var(--spacing-md);
     text-align: center;
   }
 
   .currency-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: var(--spacing-md);
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--spacing-sm);
   }
 
   .currency-card {
-    background: #5f7cd8;
+    background: var(--color-bg-secondary);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
     transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .currency-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--color-accent-primary);
+    opacity: 0.5;
   }
 
   .currency-card:hover {
+    border-color: var(--color-border-hover);
     transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--color-accent-primary);
+    box-shadow: var(--shadow-md);
   }
 
-  .currency-name {
-    font-size: 0.85rem;
-    color: var(--color-text-muted);
-    margin-bottom: var(--spacing-xs);
+  .currency-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
-  .currency-code {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--color-accent-primary);
-    margin-bottom: var(--spacing-sm);
-  }
-
-  .currency-price {
-    font-size: 1.25rem;
+  .currency-card__code {
+    font-size: 0.6875rem;
     font-weight: 700;
-    color: var(--color-text-primary);
+    color: var(--color-accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: rgba(252, 213, 53, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
   }
 
+  .currency-card__symbol {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    font-weight: 600;
+  }
+
+  .currency-card__name {
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  .currency-card__price {
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+
+  .currency-card__rate {
+    font-size: 0.6875rem;
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+    padding-top: 6px;
+    border-top: 1px solid var(--color-border);
+    margin-top: auto;
+  }
+
+  /* ============================================
+     RESPONSIVE
+     ============================================ */
   @media (max-width: 640px) {
-    .input-row {
-      flex-direction: column;
+    .calculator__body {
+      padding: var(--spacing-md);
+      gap: var(--spacing-md);
     }
 
-    .result-value.large {
+    .calculator__row {
+      grid-template-columns: 1fr;
+    }
+
+    .calculator__input {
+      font-size: 1.125rem;
+    }
+
+    .result-highlight__value {
       font-size: 1.5rem;
     }
 
     .currency-grid {
       grid-template-columns: 1fr;
+    }
+
+    .calculator__title {
+      font-size: 0.875rem;
     }
   }
 </style>

@@ -1,8 +1,6 @@
----
+ ---
 import Layout from "../layouts/Layout.astro";
-
 import ProfitCalculator from "../components/ProfitCalculator.astro";
-
 import { getAllRates } from "../utils/api";
 
 const rates = await getAllRates();
@@ -13,45 +11,183 @@ const rates = await getAllRates();
   metadescrip="Ideal para comerciantes. Calcula el precio de venta de tu producto con margen de ganancia en diferentes divisas usando las tasas actualizadas del Dólar BCV, Euro y USDT."
   slug="calculadora-precios/"
 >
-  <section class="legal-page">
-    <div class="container">
+  <!-- HERO SEO -->
+  <section class="page-hero">
+    <div class="container-app">
+      <div class="page-hero__badge">
+        <span class="live-dot"></span>
+        Tasas actualizadas
+      </div>
+
+      <h1 class="page-hero__title">
+        Calculadora de Precios para Comerciantes
+      </h1>
+
+      <p class="page-hero__subtitle">
+        Calcula el precio de venta de tu producto con el margen de ganancia
+        deseado y obtén el precio a publicar en <strong>bolívares</strong>,
+        <strong>dólares BCV</strong>, <strong>USDT</strong> y
+        <strong>euros</strong>.
+      </p>
+    </div>
+  </section>
+
+  <!-- CALCULADORA -->
+  <section class="page-section">
+    <div class="container-app">
       <ProfitCalculator rates={rates} />
+    </div>
+  </section>
+
+  <!-- CONTENIDO SEO -->
+  <section class="page-section">
+    <div class="container-app">
+      <article class="seo-content">
+        <h2>¿Cómo calcular el precio de venta con margen?</h2>
+        <p>
+          La fórmula usada es <strong>Precio = Costo ÷ (1 − Margen)</strong>,
+          que garantiza que el margen de ganancia sea sobre el precio final
+          de venta, no sobre el costo. Es la fórmula estándar para fijar
+          precios en comercios.
+        </p>
+
+        <h2>Ejemplo práctico</h2>
+        <p>
+          Si tu producto cuesta <strong>100 Bs</strong> y quieres un margen
+          del 30%, el precio de venta será:
+        </p>
+        <p class="seo-content__formula">
+          100 ÷ (1 − 0.30) = <strong>142,86 Bs</strong>
+        </p>
+        <p>
+          Tu ganancia sería de <strong>42,86 Bs</strong> y el margen real
+          sobre el precio de venta, del 30%.
+        </p>
+
+        <h2>Precios a publicar por divisa</h2>
+        <p>
+          Como comerciante en Venezuela necesitas manejar varias divisas
+          simultáneamente. La calculadora te muestra el precio equivalente en
+          cada una usando las tasas actuales del BCV, USDT y Euro, para que
+          puedas publicar en el formato que prefieras sin perder margen.
+        </p>
+      </article>
     </div>
   </section>
 </Layout>
 
 <style>
-  .legal-page {
-    padding: var(--spacing-2xl) 0;
-    min-height: 70vh;
-  }
-
-  .container h1 {
-    font-size: 2.5rem;
-    margin-bottom: var(--spacing-sm);
+  /* ============================================
+     HERO
+     ============================================ */
+  .page-hero {
+    padding: var(--spacing-2xl) 0 var(--spacing-xl);
     text-align: center;
   }
 
-  .legal-content h2 {
-    font-size: 1.5rem;
+  .page-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 4px 12px;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .page-hero__title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .page-hero__subtitle {
+    font-size: 1.0625rem;
+    color: var(--color-text-secondary);
+    max-width: 680px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .page-hero__subtitle strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+
+  /* ============================================
+     SECCIONES
+     ============================================ */
+  .page-section {
+    padding: var(--spacing-xl) 0;
+  }
+
+  /* ============================================
+     CONTENIDO SEO
+     ============================================ */
+  .seo-content {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .seo-content h2 {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
     margin-top: var(--spacing-xl);
     margin-bottom: var(--spacing-md);
-    color: var(--color-accent-primary);
   }
 
-  .legal-content p {
-    line-height: 1.8;
-    margin-bottom: var(--spacing-md);
+  .seo-content h2:first-child {
+    margin-top: 0;
   }
 
-  .legal-content ul {
-    margin-left: var(--spacing-xl);
-    margin-bottom: var(--spacing-md);
-  }
-
-  .legal-content li {
+  .seo-content p {
     color: var(--color-text-secondary);
     line-height: 1.8;
-    margin-bottom: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .seo-content strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+
+  .seo-content__formula {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-accent-primary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
+    color: var(--color-accent-primary);
+    font-size: 1.0625rem;
+    text-align: center;
+  }
+
+  /* ============================================
+     RESPONSIVE
+     ============================================ */
+  @media (max-width: 640px) {
+    .page-hero {
+      padding: var(--spacing-xl) 0 var(--spacing-md);
+    }
+
+    .page-hero__title {
+      font-size: 1.75rem;
+    }
+
+    .page-hero__subtitle {
+      font-size: 1rem;
+    }
+
+    .seo-content__formula {
+      font-size: 0.9375rem;
+    }
   }
 </style>

@@ -1,107 +1,241 @@
 ---
 import Layout from "../layouts/Layout.astro";
-
 import RateStatistics from "../components/RateStatistics.astro";
 import { getAllRates } from "../utils/api";
 import { getRateStats } from "../utils/statistics";
 import DollarChart from "../components/DollarChart/DollarChart.astro";
-
 import { formatBs } from "../utils/api";
+import FAQ from "../components/FAQ.astro";
 
 // Fetch exchange rates
 const rates = await getAllRates();
 const stats = await getRateStats(rates);
 const currentYear = new Date().getFullYear();
+
 function obtenerFechaCorta() {
   const fecha = new Date();
   const dia = String(fecha.getDate()).padStart(2, "0");
   const mes = String(fecha.getMonth() + 1).padStart(2, "0");
   const anio = fecha.getFullYear();
-
   return `${dia}/${mes}/${anio}`;
 }
-const fechaActual = obtenerFechaCorta();
----
 
+const fechaActual = obtenerFechaCorta();
+
+// Helpers para buscar tasas en el array
+const findRate = (code: string) =>
+  rates.find((r: any) => r.code === code);
+
+// Extraemos las tasas puntuales para el ticker
+const rateBCV = findRate("USD")?.rate ?? 0;       // BCV = dólar oficial (USD)
+const rateUSDT = findRate("USDT")?.rate ?? 0;
+const rateEUR = findRate("EUR")?.rate ?? 0;
+
+// Brecha (ya la tienes en stats)
+const isPositive = stats.spreadPercent >= 0;
+const signo = isPositive ? "+" : "";
+const claseDireccion = isPositive ? "is-up" : "is-down";
+const badgeClass = isPositive ? "badge-up" : "badge-down";
+const flecha = isPositive ? "▲" : "▼";
+
+// Definimos las preguntas aquí (o en un archivo aparte)
+const faqItems = [
+  {
+    question: "¿Qué es la brecha cambiaria en Venezuela?",
+    answer:
+      "La <strong>brecha cambiaria</strong> es la diferencia porcentual entre el precio oficial del dólar (BCV) y el precio del dólar en el mercado paralelo, representado principalmente por el <strong>USDT</strong> en exchanges como Binance y Bybit. Una brecha alta indica mayor presión sobre el bolívar.",
+  },
+  {
+    question: "¿Cuánto está la brecha cambiaria hoy?",
+    answer:
+      "La brecha cambiaria actual se actualiza diariamente en nuestra página de inicio. En este momento el valor está visible en el bloque principal, expresado en porcentaje y en bolívares. También puedes consultar el histórico en la sección de <a href='#chart'>gráficos</a>.",
+  },
+  {
+    question: "¿Qué diferencia hay entre BCV, USDT y paralelo?",
+    answer:
+      "El <strong>BCV</strong> es el precio del dólar publicado por el Banco Central de Venezuela (tasa oficial). El <strong>USDT</strong> es una stablecoin anclada al dólar que se comercia en exchanges como Binance y Bybit, y su precio refleja el mercado paralelo. El término <strong>paralelo</strong> se refiere al mercado no oficial, donde el USDT suele ser la referencia.",
+  },
+  {
+    question: "¿Cómo se calcula el precio del USDT en bolívares?",
+    answer:
+      "El precio del USDT en bolívares se obtiene del mercado P2P (peer-to-peer) de exchanges como Binance y Bybit. Se toma el promedio de las ofertas de compra y venta publicadas por usuarios, excluyendo valores atípicos, para obtener una tasa representativa del mercado.",
+  },
+  {
+    question: "¿Por qué el USDT es más caro que el dólar BCV?",
+    answer:
+      "El USDT suele cotizarse por encima del dólar BCV porque refleja el <strong>mercado paralelo</strong>, donde la oferta y demanda real de divisas opera sin las restricciones del control de cambio oficial. La diferencia entre ambos es precisamente la brecha cambiaria.",
+  },
+  {
+    question: "¿Cómo puedo calcular precios con la brecha cambiaria?",
+    answer:
+      "Usa nuestra <a href='/calculadora-precios'>Calculadora de Precios</a> para comerciantes, que aplica el margen de ganancia deseado y muestra el precio equivalente en bolívares, dólares BCV, USDT y euros. También puedes usar el <a href='/convertidor-divisas'>Convertidor de Divisas</a> para conversiones rápidas.",
+  },
+];
+---
+ 
+
+
+ 
 <Layout
-  metatitle="Brecha Cambiaria en Venezuela | Bcv Dolar vs USDT Actualizado"
-  metadescrip="Consulta la brecha cambiaria en Venezuela entre la tasa oficial BCV y USDT, tendencias de las tasas y mas. ¿Cuánto es el diferencial cambiario?."
+  metatitle="Brecha Cambiaria en Venezuela | BCV Dólar vs USDT Actualizado"
+  metadescrip="Consulta la brecha cambiaria en Venezuela entre la tasa oficial BCV y USDT. Tasas actualizadas, gráficos históricos y calculadora. ¿Cuánto es el diferencial cambiario hoy?"
   slug=""
 >
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="container">
-      <span class="text-sm text-gray-500 mb-2 block">
-        Actualizada {obtenerFechaCorta()}
-      </span>
-      <h1 class="hero-title fade-in">Brecha Cambiaria En Venezuela</h1>
-      <div class="brecha-info fade-in">
-        <h2
-          class={`hero-title fade-in stat-card-change ${stats.spreadAmount >= 0 ? "positive" : "negative"}`}
-        >
-          {stats.spreadPercent >= 0 ? "+" : ""}{stats.spreadPercent.toFixed(2)}%
-        </h2>
-        <h3 class="hero-title fade-in stat-card-value">
-          {formatBs(stats.spreadAmount)}
-        </h3>
-      </div>
-      <div class="div">
-        <p class="hero-subtitle fade-in">
-          Consulta la variación de dólar BCV, euro y USDT respecto a la tasa
-          anterior, mantente al tanto de la brecha cambiaria y tomas tus
-          previsiones.
-        </p>
-      </div>
+  <!-- ============================================
+       TICKER (cinta superior con tasas clave)
+       ============================================ -->
+  <div class="ticker" aria-label="Tasas en vivo">
+    <div class="ticker__track">
+      <!-- Duplicamos para loop infinito suave -->
+      {[1, 2].map(() => (
+        <>
+          <span class="ticker__item">
+          <span class="live-dot"></span>
+          <span class="ticker__label">BCV</span>
+          <span class="ticker__value">{formatBs(rateBCV)}</span>
+        </span>
+        <span class="ticker__item">
+          <span class="ticker__label">USDT</span>
+          <span class="ticker__value">{formatBs(rateUSDT)}</span>
+          <span class={badgeClass}>{flecha} {Math.abs(stats.spreadPercent).toFixed(2)}%</span>
+        </span>
+        <span class="ticker__item">
+          <span class="ticker__label">Euro BCV</span>
+          <span class="ticker__value">{formatBs(rateEUR)}</span>
+        </span>
+          <span class="ticker__item">
+            <span class="ticker__label">Brecha</span>
+            <span class="ticker__value">{signo}{stats.spreadPercent.toFixed(2)}%</span>
+          </span>
+        </>
+      ))}
     </div>
-  </section>
+  </div>
 
-  <!-- Rate Statistics Section -->
-  <RateStatistics rates={rates} stats={stats} />
-  <section class="info-banner">
-    <div class="container">
-      <div class="cta-section">
-        <div class="cta-box">
-          <img src="img/bybit.png" alt="Bybit" />
+  <!-- ============================================
+       HERO — H1 SEO + dato principal (brecha)
+       ============================================ -->
+  <section class="hero">
+    <div class="container-app">
+      <div class="hero__meta">
+        <span class="live-dot"></span>
+        <span>Actualizado {obtenerFechaCorta()}</span>
+      </div>
 
-          <p>
-            Unete a Bybit y compra USDT a un precio excelente para resguardar
-            tus bolivares.
-          </p>
-          <a
-            href="https://www.bybit.com/invite?ref=Y8MB0PP"
-            class="btn btn-primary"
-            target="_blank"
-          >
-            Unete a Bybit
-          </a>
+      <h1 class="hero__title fade-in">
+        Brecha Cambiaria en Venezuela
+      </h1>
+
+      <p class="hero__subtitle fade-in">
+        Diferencia entre el dólar oficial <strong>BCV</strong> y el <strong>USDT</strong>.
+        Consulta la variación del dólar, euro y USDT respecto a la tasa anterior
+        y mantente al tanto del diferencial cambiario.
+      </p>
+
+      <!-- Dato destacado: la brecha -->
+      <div class="brecha-destacada fade-in">
+        <div class="brecha-destacada__label">Brecha Cambiaria Actual</div>
+
+        <div class={`brecha-destacada__porcentaje ${claseDireccion}`}>
+          {signo}{stats.spreadPercent.toFixed(2)}%
+        </div>
+
+        <div class="brecha-destacada__meta">
+          Diferencial: <strong>{formatBs(stats.spreadAmount)}</strong>
+        </div>
+
+        <div class="brecha-destacada__bar">
+          <div
+            class="brecha-destacada__bar-fill"
+            style={`width: ${Math.min(Math.abs(stats.spreadPercent), 100)}%`}
+          ></div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="info">
-    <div class="container">
-      <DollarChart
-        initialDays={7}
-        height="450px"
-        className="shadow-lg"
-        colors={{
-          oficial: "#2563EB",
-          paralelo: "#16A34A",
-        }}
-        locale="es-VE"
-      />
+  <!-- ============================================
+       GRID DE TASAS (BCV, USDT, Euro, Paralelo)
+       ============================================ -->
+  <RateStatistics rates={rates} stats={stats} />
+
+  <!-- ============================================
+       GRÁFICO HISTÓRICO
+       ============================================ -->
+  <section class="chart-section">
+    <div class="container-app">
+      <header class="section-header">
+        <h2 class="section-title">Histórico de Tasas</h2>
+        <p class="section-subtitle">
+          Evolución del dólar BCV y USDT en los últimos días
+        </p>
+      </header>
+
+      <div class="glass-card chart-wrapper">
+        <DollarChart
+          initialDays={7}
+          height="450px"
+          className=""
+          colors={{
+            oficial: "#2962FF",
+            paralelo: "#0ECB81",
+          }}
+          locale="es-VE"
+        />
+      </div>
     </div>
   </section>
 
-  <!-- Info Banner -->
-  <section class="info-banner">
-    <div class="container">
-      <div class="banner-content glass-card">
-        <div class="banner-icon">⚠️</div>
-        <div class="banner-text">
-          <h3>Información Importante</h3>
-          <p>
+  <!-- ============================================
+       SECCIÓN FAQ (rich snippets)
+       ============================================ -->
+  <FAQ items={faqItems} />
+
+  <!-- ============================================
+       CTA — Bybit (afiliado)
+       ============================================ -->
+  <section class="cta-section">
+    <div class="container-app">
+      <div class="cta-box">
+        <img
+          src="/img/bybit.png"
+          alt="Bybit"
+          width="120"
+          height="32"
+          loading="lazy"
+          class="cta-box__logo"
+        />
+
+        <div class="cta-box__content">
+          <h3 class="cta-box__title">Protege tus bolívares con USDT</h3>
+          <p class="cta-box__text">
+            Únete a Bybit y compra USDT a un precio excelente. La plataforma
+            de trading más confiable para resguardar tu dinero.
+          </p>
+        </div>
+
+        <a
+          href="https://www.bybit.com/invite?ref=Y8MB0PP"
+          class="btn btn-primary btn-lg"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Únete a Bybit →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       DISCLAIMER (banner informativo)
+       ============================================ -->
+  <section class="disclaimer-section">
+    <div class="container-app">
+      <div class="disclaimer">
+        <div class="disclaimer__icon" aria-hidden="true">⚠️</div>
+        <div class="disclaimer__content">
+          <h3 class="disclaimer__title">Información Importante</h3>
+          <p class="disclaimer__text">
             Los datos mostrados son de carácter informativo y provienen de
             fuentes públicas. No constituyen información oficial ni asesoría
             financiera.
@@ -114,139 +248,275 @@ const fechaActual = obtenerFechaCorta();
 </Layout>
 
 <style>
+  /* ============================================
+     TICKER (ya está en global, pero por si acaso)
+     ============================================ */
+  .ticker {
+    margin-top: 0;
+  }
+
+  /* ============================================
+     HERO
+     ============================================ */
   .hero {
-    padding: var(--spacing-2xl) 0;
+    padding: var(--spacing-2xl) 0 var(--spacing-xl);
     text-align: center;
+    position: relative;
   }
 
-  .hero-title {
+  .hero__meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 4px 12px;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .hero__title {
     font-size: 3rem;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
     margin-bottom: var(--spacing-md);
-    animation: fadeIn 0.8s ease-out;
     text-transform: capitalize;
-    color: var(--color-text-dark);
   }
 
-    
-
-  .hero-subtitle {
-    font-size: 1.25rem;
+  .hero__subtitle {
+    font-size: 1.0625rem;
     color: var(--color-text-secondary);
-    max-width: 700px;
-    margin: 0 auto;
-    animation: fadeIn 1s ease-out 0.2s backwards;
+    max-width: 720px;
+    margin: 0 auto var(--spacing-xl);
+    line-height: 1.7;
   }
 
-  .rates-section {
+  .hero__subtitle strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+
+  /* ============================================
+     BRECHA DESTACADA — variante más grande para hero
+     ============================================ */
+  .brecha-destacada {
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  .brecha-destacada__bar {
+    margin-top: var(--spacing-lg);
+    height: 6px;
+    background: var(--color-bg-secondary);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .brecha-destacada__bar-fill {
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      var(--color-accent-primary) 0%,
+      var(--color-accent-primary-hover) 100%
+    );
+    border-radius: 999px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ============================================
+     SECTION HEADERS
+     ============================================ */
+  .section-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .section-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .section-subtitle {
+    font-size: 0.9375rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  /* ============================================
+     CHART WRAPPER
+     ============================================ */
+  .chart-section {
     padding: var(--spacing-xl) 0;
   }
 
-  .converter-section,
-  .calculator-section {
-    padding: var(--spacing-2xl) 0;
+  .chart-wrapper {
+    padding: var(--spacing-md);
+    overflow: hidden;
   }
 
-  .info-banner {
-    padding: 2px 0;
+  /* ============================================
+     CTA BOX (Bybit)
+     ============================================ */
+  .cta-section {
+    padding: var(--spacing-xl) 0;
   }
 
-  .banner-content {
+  .cta-box {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
     display: flex;
-    gap: var(--spacing-lg);
-    align-items: flex-start;
-    background: rgba(245, 158, 11, 0.1) !important;
-    border-color: var(--color-accent-warning);
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--spacing-md);
+    position: relative;
+    overflow: hidden;
+    transition: border-color var(--transition-base);
   }
 
-  .banner-icon {
-    font-size: 2.5rem;
-    flex-shrink: 0;
+  .cta-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-accent-primary),
+      transparent
+    );
   }
 
-  .banner-text h3 {
-    color: var(--color-accent-warning);
+  .cta-box:hover {
+    border-color: var(--color-border-hover);
+  }
+
+  .cta-box__logo {
+    width: 120px;
+    height: auto;
+    object-fit: contain;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .cta-box__content {
+    max-width: 560px;
+  }
+
+  .cta-box__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
     margin-bottom: var(--spacing-sm);
   }
 
-  .banner-text p {
+  .cta-box__text {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+    line-height: 1.7;
+  }
+
+  /* ============================================
+     DISCLAIMER BANNER
+     ============================================ */
+  .disclaimer-section {
+    padding: var(--spacing-lg) 0 var(--spacing-2xl);
+  }
+
+  .disclaimer {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: flex-start;
+    background: rgba(252, 213, 53, 0.06);
+    border: 1px solid rgba(252, 213, 53, 0.2);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+  }
+
+  .disclaimer__icon {
+    font-size: 1.75rem;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .disclaimer__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-accent-primary);
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .disclaimer__text {
+    font-size: 0.875rem;
     color: var(--color-text-secondary);
     margin: 0;
     line-height: 1.6;
   }
 
-  .banner-text a {
+  .disclaimer__text a {
     color: var(--color-accent-primary);
     text-decoration: underline;
-    transition: color var(--transition-base);
+    text-underline-offset: 2px;
   }
 
-  .banner-text a:hover {
-    color: var(--color-accent-secondary);
+  .disclaimer__text a:hover {
+    color: var(--color-accent-primary-hover);
   }
 
-  .cta-section {
-    margin: var(--spacing-2xl) 0;
-  }
-
-  .cta-box {
-    text-align: center;
-    padding: var(--spacing-xl);
-    background: var(--gradient-card);
-    border: 2px solid var(--color-accent-success);
-    border-radius: var(--radius-xl);
-  }
-
-  .cta-box h3 {
-    font-size: 1.75rem;
-    margin-bottom: var(--spacing-md);
-    color: var(--color-accent-success);
-  }
-
-  .cta-box p {
-    font-size: 1.1rem;
-    line-height: 1.8;
-    margin-bottom: var(--spacing-xl);
-    color: var(--color-text-primary);
-  }
-
-  .stat-card-change.positive {
-    color: #abda40;
-  }
-
-  .stat-card-change.negative {
-    color: #e93030;
-  }
-  .stat-card-value {
-    color: #8d1121;
-    font-weight: 800;
-  }
-  .brecha-info {
-    background: #415474;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-xl);
-    padding: var(--spacing-lg);
-    box-shadow: var(--shadow-sm);
-    max-width: 400px;
-    justify-content: center;
-    margin: 0 auto;
-  }
+  /* ============================================
+     RESPONSIVE
+     ============================================ */
   @media (max-width: 768px) {
-    .hero-title {
-      font-size: 2rem;
-      text-transform: capitalize;
+    .hero {
+      padding: var(--spacing-xl) 0;
     }
 
-    .hero-subtitle {
+    .hero__title {
+      font-size: 1.875rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero__subtitle {
       font-size: 1rem;
     }
 
-    .banner-content {
-      flex-direction: column;
-      text-align: center;
+    .brecha-destacada__porcentaje {
+      font-size: 2.75rem;
     }
 
-    .banner-icon {
-      font-size: 2rem;
+    .cta-box {
+      padding: var(--spacing-lg);
+    }
+
+    .cta-box__title {
+      font-size: 1.25rem;
+    }
+
+    .disclaimer {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero__title {
+      font-size: 1.5rem;
+    }
+
+    .brecha-destacada__porcentaje {
+      font-size: 2.25rem;
     }
   }
 </style>

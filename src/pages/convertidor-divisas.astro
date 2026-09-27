@@ -1,7 +1,6 @@
----
+ ---
 import Layout from "../layouts/Layout.astro";
 import CurrencyConverter from "../components/CurrencyConverter.astro";
-import { getRateStats } from "../utils/statistics";
 import { getAllRates } from "../utils/api";
 
 const rates = await getAllRates();
@@ -9,49 +8,183 @@ const rates = await getAllRates();
 
 <Layout
   metatitle="Convertidor de Divisas BCV - Brecha Cambiaria en Venezuela"
-  metadescrip="Calcula el precio real en Bs y en divisas respecto al dolar USDT Binance, Bybit y tasa Euro."
+  metadescrip="Calcula el precio real en Bs y en divisas respecto al dólar USDT Binance, Bybit y tasa Euro. Convertidor actualizado en tiempo real."
   slug="convertidor-divisas/"
 >
-  <section class="legal-page">
-    <div class="container">
+  <!-- ============================================
+       HERO SEO
+       ============================================ -->
+  <section class="page-hero">
+    <div class="container-app">
+      <div class="page-hero__badge">
+        <span class="live-dot"></span>
+        Tasas actualizadas
+      </div>
+
+      <h1 class="page-hero__title">
+        Convertidor de Divisas en Venezuela
+      </h1>
+
+      <p class="page-hero__subtitle">
+        Calcula el precio en bolívares o en tu divisa favorita usando las
+        tasas actualizadas del <strong>Dólar BCV</strong>,
+        <strong>USDT Binance/Bybit</strong> y <strong>Euro BCV</strong>.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================
+       CONVERTIDOR
+       ============================================ -->
+  <section class="page-section">
+    <div class="container-app">
       <CurrencyConverter rates={rates} />
+    </div>
+  </section>
+
+  <!-- ============================================
+       CONTENIDO SEO (texto adicional)
+       ============================================ -->
+  <section class="page-section">
+    <div class="container-app">
+      <article class="seo-content">
+        <h2>¿Cómo usar el convertidor?</h2>
+        <ol class="seo-content__list">
+          <li>Ingresa el monto que deseas convertir.</li>
+          <li>Selecciona la divisa (BCV, USDT o Euro).</li>
+          <li>El resultado se actualiza automáticamente en bolívares.</li>
+          <li>Usa el botón de intercambio para convertir de Bs a divisa.</li>
+        </ol>
+
+        <h2>¿Qué tasa se utiliza?</h2>
+        <p>
+          El convertidor usa la tasa oficial del Banco Central de Venezuela
+          (BCV) para el dólar y el euro, y el precio del USDT en el mercado
+          P2P (Binance, Bybit) para las operaciones paralelas. Los valores se
+          actualizan diariamente.
+        </p>
+
+        <h2>Diferencia entre BCV, USDT y paralelo</h2>
+        <p>
+          El <strong>dólar BCV</strong> es la tasa oficial publicada por el
+          Banco Central de Venezuela. El <strong>USDT</strong> es una stablecoin
+          anclada al dólar que se comercializa en exchanges como Binance y
+          Bybit, y su precio en bolívares suele reflejar el mercado paralelo.
+          La <strong>brecha cambiaria</strong> es la diferencia porcentual
+          entre ambos valores.
+        </p>
+      </article>
     </div>
   </section>
 </Layout>
 
 <style>
-  .legal-page {
-    padding: var(--spacing-2xl) 0;
-    min-height: 70vh;
-  }
-
-  .container h1 {
-    font-size: 2.5rem;
-    margin-bottom: var(--spacing-sm);
+  /* ============================================
+     HERO
+     ============================================ */
+  .page-hero {
+    padding: var(--spacing-2xl) 0 var(--spacing-xl);
     text-align: center;
-    color: var(--color-text-dark);
   }
 
-  .legal-content h2 {
-    font-size: 1.5rem;
+  .page-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 4px 12px;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .page-hero__title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .page-hero__subtitle {
+    font-size: 1.0625rem;
+    color: var(--color-text-secondary);
+    max-width: 640px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .page-hero__subtitle strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+
+  /* ============================================
+     SECCIONES
+     ============================================ */
+  .page-section {
+    padding: var(--spacing-xl) 0;
+  }
+
+  /* ============================================
+     CONTENIDO SEO
+     ============================================ */
+  .seo-content {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .seo-content h2 {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
     margin-top: var(--spacing-xl);
     margin-bottom: var(--spacing-md);
-    color: var(--color-accent-primary);
   }
 
-  .legal-content p {
+  .seo-content h2:first-child {
+    margin-top: 0;
+  }
+
+  .seo-content p {
+    color: var(--color-text-secondary);
     line-height: 1.8;
     margin-bottom: var(--spacing-md);
   }
 
-  .legal-content ul {
-    margin-left: var(--spacing-xl);
+  .seo-content strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+
+  .seo-content__list {
+    padding-left: var(--spacing-lg);
     margin-bottom: var(--spacing-md);
   }
 
-  .legal-content li {
+  .seo-content__list li {
     color: var(--color-text-secondary);
     line-height: 1.8;
     margin-bottom: var(--spacing-xs);
+  }
+
+  /* ============================================
+     RESPONSIVE
+     ============================================ */
+  @media (max-width: 640px) {
+    .page-hero {
+      padding: var(--spacing-xl) 0 var(--spacing-md);
+    }
+
+    .page-hero__title {
+      font-size: 1.75rem;
+    }
+
+    .page-hero__subtitle {
+      font-size: 1rem;
+    }
   }
 </style>

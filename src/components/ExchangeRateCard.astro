@@ -3,133 +3,236 @@ import type { ExchangeRate } from "../utils/api";
 import { formatBs, formatDate } from "../utils/api";
 
 interface Props {
-    rate: ExchangeRate;
+  rate: ExchangeRate;
+  /** Opcional: cambio porcentual respecto al día anterior */
+  variation?: number;
+  /** Opcional: color de acento por fuente (BCV, USDT, EUR...) */
+  accent?: string;
 }
 
-const { rate } = Astro.props;
+const {
+  rate,
+  variation = 0,
+  accent = "var(--color-accent-primary)",
+} = Astro.props;
+
+const hasRate = rate.rate > 0;
+const isUp = variation >= 0;
+const badgeClass = isUp ? "badge-up" : "badge-down";
+const flecha = isUp ? "▲" : "▼";
 ---
 
-<div class="rate-card glass-card">
-    <div class="rate-header">
-        <div class="rate-icon">{rate.symbol}</div>
-        <div class="rate-info">
-            <h3 class="rate-name">{rate.name}</h3>
-            <span class="rate-code">{rate.code}</span>
-        </div>
+<article class="rate-card" style={`--card-accent: ${accent}`}>
+  <!-- Header: icono + nombre + badge -->
+  <header class="rate-card__header">
+    <div class="rate-card__identity">
+      <div class="rate-card__icon" aria-hidden="true">
+        {rate.symbol}
+      </div>
+      <div class="rate-card__info">
+        <h3 class="rate-card__name">{rate.name}</h3>
+        <span class="rate-card__code">{rate.code}</span>
+      </div>
     </div>
 
-    <div class="rate-value">
-        {rate.rate > 0 ? formatBs(rate.rate) : "No disponible"}
-    </div>
-
-    <div class="rate-footer">
-        <span class="rate-update">
-            Actualizado: {formatDate(rate.lastUpdate)}
+    {
+      hasRate && variation !== 0 && (
+        <span class={badgeClass}>
+          {flecha} {Math.abs(variation).toFixed(2)}%
         </span>
-    </div>
-</div>
+      )
+    }
+  </header>
+
+  <!-- Valor principal -->
+  <div class="rate-card__value">
+    {hasRate ? formatBs(rate.rate) : "No disponible"}
+  </div>
+
+  <!-- Footer: última actualización -->
+  <footer class="rate-card__footer">
+    <span class="rate-card__update">
+      <svg
+        class="rate-card__update-icon"
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+      Actualizado {formatDate(rate.lastUpdate)}
+    </span>
+  </footer>
+</article>
 
 <style>
+  /* ============================================
+     CARD BASE
+     ============================================ */
+  .rate-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    transition: all var(--transition-base);
+    overflow: hidden;
+  }
+
+  /* Línea de acento superior (visible siempre, sutil) */
+  .rate-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: var(--spacing-md);
+    right: var(--spacing-md);
+    height: 2px;
+    background: var(--card-accent);
+    border-radius: 0 0 4px 4px;
+    opacity: 0.6;
+    transition: opacity var(--transition-base);
+  }
+
+  .rate-card:hover {
+    background: var(--color-bg-card-hover);
+    border-color: var(--color-border-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .rate-card:hover::before {
+    opacity: 1;
+  }
+
+  /* ============================================
+     HEADER
+     ============================================ */
+  .rate-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .rate-card__identity {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    min-width: 0;
+    flex: 1;
+  }
+
+  .rate-card__icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.125rem;
+    font-weight: 700;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--card-accent);
+    flex-shrink: 0;
+    transition: all var(--transition-base);
+    line-height: 1;
+  }
+
+  .rate-card:hover .rate-card__icon {
+    border-color: var(--card-accent);
+    background: var(--color-bg-elevated);
+  }
+
+  .rate-card__info {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .rate-card__name {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 2px;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .rate-card__code {
+    font-size: 0.6875rem;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 1;
+  }
+
+  /* ============================================
+     VALOR
+     ============================================ */
+  .rate-card__value {
+    font-size: 1.625rem;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin: 0;
+  }
+
+  /* ============================================
+     FOOTER
+     ============================================ */
+  .rate-card__footer {
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--color-border);
+    margin-top: auto;
+  }
+
+  .rate-card__update {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .rate-card__update-icon {
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+
+  /* ============================================
+     RESPONSIVE
+     ============================================ */
+  @media (max-width: 640px) {
     .rate-card {
-        position: relative;
-        overflow: hidden;
+      padding: var(--spacing-sm);
+      gap: var(--spacing-sm);
     }
 
-    .rate-card::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: var(--gradient-primary);
-        opacity: 0;
-        transition: opacity var(--transition-base);
+    .rate-card__icon {
+      width: 36px;
+      height: 36px;
+      font-size: 1rem;
     }
 
-    .rate-card:hover::before {
-        opacity: 1;
+    .rate-card__value {
+      font-size: 1.375rem;
     }
-
-    .rate-header {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-md);
-        margin-bottom: var(--spacing-lg);
-    }
-
-    .rate-icon {
-        width: 60px;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2rem;
-        background: var(--gradient-card);
-        border-radius: var(--radius-lg);
-        border: 1px solid var(--color-border);
-        transition: all var(--transition-base);
-    }
-
-    .rate-card:hover .rate-icon {
-        transform: scale(1.1) rotate(5deg);
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-    }
-
-    .rate-info {
-        flex: 1;
-    }
-
-    .rate-name {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--color-text-primary);
-        margin: 0 0 var(--spacing-xs) 0;
-    }
-
-    .rate-code {
-        font-size: 0.85rem;
-        color: var(--color-text-muted);
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .rate-value {
-        font-size: 2rem;
-        font-weight: 700;
-        background: var(--gradient-success);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: var(--spacing-md);
-        transition: all var(--transition-base);
-    }
-
-    .rate-card:hover .rate-value {
-        transform: scale(1.05);
-    }
-
-    .rate-footer {
-        padding-top: var(--spacing-md);
-        border-top: 1px solid var(--color-border);
-    }
-
-    .rate-update {
-        font-size: 0.8rem;
-        color: var(--color-text-muted);
-        font-style: italic;
-    }
-
-    @media (max-width: 640px) {
-        .rate-value {
-            font-size: 1.5rem;
-        }
-
-        .rate-icon {
-            width: 50px;
-            height: 50px;
-            font-size: 1.5rem;
-        }
-    }
+  }
 </style>

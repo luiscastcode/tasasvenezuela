@@ -1,0 +1,413 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+// Links sugeridos para reconducir al usuario
+const sugerencias = [
+  {
+    href: "/",
+    title: "Brecha cambiaria hoy",
+    description: "Tasas BCV, USDT y Euro actualizadas",
+    accent: "var(--color-accent-primary)",
+    icon: "chart",
+  },
+  {
+    href: "/convertidor-divisas",
+    title: "Convertidor de divisas",
+    description: "Convierte entre Bs, USD, USDT y EUR",
+    accent: "var(--color-accent-secondary)",
+    icon: "swap",
+  },
+  {
+    href: "/calculadora-precios",
+    title: "Calculadora de precios",
+    description: "Fija precios con margen de ganancia",
+    accent: "var(--color-accent-success)",
+    icon: "calc",
+  },
+];
+---
+
+<Layout
+  metatitle="Página no encontrada | Tasas Venezuela"
+  metadescrip="La página que buscas no existe. Consulta las tasas de cambio en Venezuela, la brecha cambiaria y herramientas de conversión."
+  slug="404"
+>
+  <section class="notfound">
+    <div class="container-app">
+      <!-- ============================================
+           Bloque principal: 404 grande
+           ============================================ -->
+      <div class="notfound__hero">
+        <div class="notfound__badge">
+          <span class="notfound__badge-dot"></span>
+          Error 404
+        </div>
+
+        <h1 class="notfound__code">
+          4<span class="notfound__code-zero">0</span>4
+        </h1>
+
+        <h2 class="notfound__title">Página no encontrada</h2>
+
+        <p class="notfound__text">
+          El enlace que seguiste puede estar roto o la página fue movida.
+          Prueba con una de estas secciones:
+        </p>
+
+        <div class="notfound__actions">
+          <a href="/" class="btn btn-primary">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7"></path>
+            </svg>
+            Volver al inicio
+          </a>
+          <a href="/convertidor-divisas" class="btn btn-secondary">
+            Ir al convertidor
+          </a>
+        </div>
+      </div>
+
+      <!-- ============================================
+           Grid de sugerencias
+           ============================================ -->
+      <div class="notfound__grid">
+        {
+          sugerencias.map((item) => (
+            <a
+              href={item.href}
+              class="sugerencia-card"
+              style={`--card-accent: ${item.accent}`}
+            >
+              <div class="sugerencia-card__icon">
+                {item.icon === "chart" && (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3v18h18" />
+                    <path d="M7 14l4-4 3 3 5-6" />
+                  </svg>
+                )}
+                {item.icon === "swap" && (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 16V4M7 4L3 8M7 4L11 8" />
+                    <path d="M17 8V20M17 20L21 16M17 20L13 16" />
+                  </svg>
+                )}
+                {item.icon === "calc" && (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2" />
+                    <line x1="8" y1="6" x2="16" y2="6" />
+                    <line x1="8" y1="10" x2="8" y2="10.01" />
+                    <line x1="12" y1="10" x2="12" y2="10.01" />
+                    <line x1="16" y1="10" x2="16" y2="10.01" />
+                    <line x1="8" y1="14" x2="8" y2="14.01" />
+                    <line x1="12" y1="14" x2="12" y2="14.01" />
+                    <line x1="16" y1="14" x2="16" y2="14.01" />
+                    <line x1="8" y1="18" x2="16" y2="18" />
+                  </svg>
+                )}
+              </div>
+
+              <div class="sugerencia-card__content">
+                <h3 class="sugerencia-card__title">{item.title}</h3>
+                <p class="sugerencia-card__description">{item.description}</p>
+              </div>
+
+              <svg
+                class="sugerencia-card__arrow"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M5 12h14M13 5l7 7-7 7"></path>
+              </svg>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* ============================================
+     SECCIÓN
+     ============================================ */
+  .notfound {
+    padding: var(--spacing-2xl) 0;
+    min-height: calc(100vh - 64px - 200px);
+    display: flex;
+    align-items: center;
+  }
+
+  .notfound .container-app {
+    width: 100%;
+  }
+
+  /* ============================================
+     HERO 404
+     ============================================ */
+  .notfound__hero {
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto var(--spacing-2xl);
+  }
+
+  .notfound__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: var(--color-down);
+    background: var(--color-down-bg);
+    border: 1px solid rgba(246, 70, 93, 0.25);
+    border-radius: 999px;
+    padding: 4px 12px;
+    margin-bottom: var(--spacing-lg);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .notfound__badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-down);
+    box-shadow: 0 0 0 0 rgba(246, 70, 93, 0.7);
+    animation: notfoundPulse 2s infinite;
+  }
+
+  @keyframes notfoundPulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(246, 70, 93, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 8px rgba(246, 70, 93, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(246, 70, 93, 0);
+    }
+  }
+
+  /* Número 404 gigante */
+  .notfound__code {
+    font-size: clamp(5rem, 18vw, 10rem);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-lg);
+    font-variant-numeric: tabular-nums;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.05em;
+    position: relative;
+  }
+
+  /* El "0" con acento amarillo */
+  .notfound__code-zero {
+    color: var(--color-accent-primary);
+    position: relative;
+    display: inline-block;
+    text-shadow: 0 0 40px rgba(252, 213, 53, 0.3);
+  }
+
+  .notfound__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-md);
+    letter-spacing: -0.01em;
+  }
+
+  .notfound__text {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    margin: 0 0 var(--spacing-xl);
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ============================================
+     ACCIONES
+     ============================================ */
+  .notfound__actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+  }
+
+  .notfound__actions .btn {
+    min-width: 160px;
+  }
+
+  /* ============================================
+     GRID DE SUGERENCIAS
+     ============================================ */
+  .notfound__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .sugerencia-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    text-decoration: none;
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sugerencia-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: var(--spacing-md);
+    right: var(--spacing-md);
+    height: 2px;
+    background: var(--card-accent);
+    border-radius: 0 0 4px 4px;
+    opacity: 0.6;
+    transition: opacity var(--transition-base);
+  }
+
+  .sugerencia-card:hover {
+    background: var(--color-bg-card-hover);
+    border-color: var(--color-border-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .sugerencia-card:hover::before {
+    opacity: 1;
+  }
+
+  .sugerencia-card__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--card-accent);
+    flex-shrink: 0;
+    transition: all var(--transition-base);
+  }
+
+  .sugerencia-card:hover .sugerencia-card__icon {
+    border-color: var(--card-accent);
+    background: var(--color-bg-elevated);
+  }
+
+  .sugerencia-card__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sugerencia-card__title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 2px;
+    line-height: 1.2;
+  }
+
+  .sugerencia-card__description {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sugerencia-card__arrow {
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+    transition: all var(--transition-base);
+  }
+
+  .sugerencia-card:hover .sugerencia-card__arrow {
+    color: var(--card-accent);
+    transform: translateX(2px);
+  }
+
+  /* ============================================
+     RESPONSIVE
+     ============================================ */
+  @media (max-width: 900px) {
+    .notfound__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .notfound {
+      padding: var(--spacing-xl) 0;
+      min-height: auto;
+    }
+
+    .notfound__hero {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .notfound__code {
+      margin-bottom: var(--spacing-md);
+    }
+
+    .notfound__title {
+      font-size: 1.25rem;
+    }
+
+    .notfound__text {
+      font-size: 0.9375rem;
+    }
+
+    .notfound__actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .notfound__actions .btn {
+      width: 100%;
+    }
+
+    .notfound__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .sugerencia-card__description {
+      white-space: normal;
+    }
+  }
+</style>

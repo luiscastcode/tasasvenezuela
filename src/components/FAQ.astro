@@ -1,0 +1,333 @@
+---
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+  items: FAQItem[];
+  /** ID único para el Schema (útil si hay múltiples FAQ en la misma página) */
+  id?: string;
+}
+
+const {
+  title = "Preguntas Frecuentes",
+  subtitle = "Resolvemos las dudas más comunes sobre la brecha cambiaria en Venezuela",
+  items,
+  id = "faq",
+} = Astro.props;
+
+// Generamos el Schema.org FAQPage
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: items.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.answer,
+    },
+  })),
+};
+---
+
+<section class="faq-section" id={id} aria-labelledby={`${id}-title`}>
+  <div class="container-app">
+    <!-- Header -->
+    <header class="faq-header">
+      <h2 class="faq-header__title" id={`${id}-title`}>
+        {title}
+      </h2>
+      <p class="faq-header__subtitle">{subtitle}</p>
+    </header>
+
+    <!-- Lista de preguntas -->
+    <div class="faq-list">
+      {
+        items.map((item, index) => (
+          <details class="faq-item" open={index === 0}>
+            <summary class="faq-item__question">
+              <span class="faq-item__question-text">{item.question}</span>
+              <span class="faq-item__icon" aria-hidden="true">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </span>
+            </summary>
+            <div class="faq-item__answer">
+              <p set:html={item.answer} />
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+
+  <!-- Schema.org FAQPage -->
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(faqSchema)}
+  />
+</section>
+
+<style>
+  /* ============================================
+     SECCIÓN
+     ============================================ */
+  .faq-section {
+    padding: var(--spacing-2xl) 0;
+  }
+
+  /* ============================================
+     HEADER
+     ============================================ */
+  .faq-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .faq-header__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-xs);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .faq-header__subtitle {
+    font-size: 0.9375rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ============================================
+     LISTA
+     ============================================ */
+  .faq-list {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  /* ============================================
+     ITEM (acordeón con <details>)
+     ============================================ */
+  .faq-item {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: all var(--transition-base);
+    position: relative;
+  }
+
+  .faq-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: var(--spacing-md);
+    right: var(--spacing-md);
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-accent-primary),
+      transparent
+    );
+    opacity: 0;
+    transition: opacity var(--transition-base);
+  }
+
+  .faq-item[open]::before {
+    opacity: 1;
+  }
+
+  .faq-item:hover {
+    border-color: var(--color-border-hover);
+    background: var(--color-bg-card-hover);
+  }
+
+  .faq-item[open] {
+    background: var(--color-bg-card-hover);
+    border-color: var(--color-border-hover);
+  }
+
+  /* ============================================
+     PREGUNTA (summary)
+     ============================================ */
+  .faq-item__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    line-height: 1.4;
+    transition: color var(--transition-fast);
+  }
+
+  /* Quitar el marker nativo del <summary> */
+  .faq-item__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-item__question::marker {
+    display: none;
+    content: '';
+  }
+
+  .faq-item__question:hover {
+    color: var(--color-accent-primary);
+  }
+
+  .faq-item__question:focus-visible {
+    outline: none;
+    background: var(--color-bg-elevated);
+  }
+
+  .faq-item__question-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Icono con chevron que rota al abrir */
+  .faq-item__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+    transition: all var(--transition-base);
+  }
+
+  .faq-item__icon svg {
+    transition: transform var(--transition-base);
+  }
+
+  .faq-item[open] .faq-item__icon {
+    background: var(--color-accent-primary);
+    border-color: var(--color-accent-primary);
+    color: var(--color-text-dark);
+  }
+
+  .faq-item[open] .faq-item__icon svg {
+    transform: rotate(180deg);
+  }
+
+  .faq-item__question:hover .faq-item__icon {
+    border-color: var(--color-border-hover);
+    color: var(--color-text-primary);
+  }
+
+  .faq-item[open] .faq-item__question:hover .faq-item__icon {
+    color: var(--color-text-dark);
+  }
+
+  /* ============================================
+     RESPUESTA
+     ============================================ */
+  .faq-item__answer {
+    padding: 0 var(--spacing-lg) var(--spacing-md);
+    animation: faqFadeIn 300ms ease-out;
+  }
+
+  .faq-item__answer p {
+    margin: 0;
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+  }
+
+  .faq-item__answer p + p {
+    margin-top: var(--spacing-sm);
+  }
+
+  .faq-item__answer strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+
+  .faq-item__answer a {
+    color: var(--color-accent-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color var(--transition-fast);
+  }
+
+  .faq-item__answer a:hover {
+    color: var(--color-accent-primary-hover);
+  }
+
+  @keyframes faqFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ============================================
+     RESPONSIVE
+     ============================================ */
+  @media (max-width: 640px) {
+    .faq-section {
+      padding: var(--spacing-xl) 0;
+    }
+
+    .faq-header__title {
+      font-size: 1.375rem;
+    }
+
+    .faq-item__question {
+      padding: var(--spacing-sm) var(--spacing-md);
+      font-size: 0.9375rem;
+      gap: var(--spacing-sm);
+    }
+
+    .faq-item__answer {
+      padding: 0 var(--spacing-md) var(--spacing-md);
+    }
+
+    .faq-item__answer p {
+      font-size: 0.875rem;
+    }
+
+    .faq-item__icon {
+      width: 28px;
+      height: 28px;
+    }
+  }
+</style>

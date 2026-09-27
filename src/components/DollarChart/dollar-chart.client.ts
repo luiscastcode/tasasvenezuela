@@ -41,13 +41,13 @@ interface ChartColors {
 }
 
 const DEFAULT_COLORS: ChartColors = {
-  bg: '#ffffff',
-  text: '#64748B',
-  grid: '#E2E8F0',
-  oficial: '#2563EB',
-  paralelo: '#16A34A',
-  crosshair: '#94A3B8',
-  tooltip: { bg: '#1E293B', text: '#F8FAFC' },
+  bg: '#181A20',                      // antes #ffffff
+  text: '#848E9C',                    // antes #64748B
+  grid: 'rgba(255, 255, 255, 0.04)',  // antes #E2E8F0
+  oficial: '#2962FF',                 // antes #2563EB
+  paralelo: '#0ECB81',                // antes #16A34A
+  crosshair: '#474D57',               // antes #94A3B8
+  tooltip: { bg: '#22262E', text: '#EAECEF' }, // antes #1E293B / #F8FAFC
 };
 
 // ============================================================================
@@ -183,8 +183,8 @@ const chart: IChartApi = createChart(container, {
   },
   crosshair: {
     mode: CrosshairMode.Normal,
-    vertLine: { color: mergedColors.crosshair, style: LineStyle.Dotted, labelBackgroundColor: mergedColors.oficial, visible: true },
-    horzLine: { color: mergedColors.crosshair, style: LineStyle.Dotted, labelBackgroundColor: mergedColors.paralelo, visible: true },
+    vertLine: { color: mergedColors.crosshair, style: LineStyle.Dotted, labelBackgroundColor: '#2B3139', visible: true },
+    horzLine: { color: mergedColors.crosshair, style: LineStyle.Dotted, labelBackgroundColor: '#2B3139', visible: true },
   },
   timeScale: {
     borderColor: mergedColors.grid,
