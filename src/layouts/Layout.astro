@@ -29,8 +29,8 @@ const SITE_URL = "https://tasasvenezuela.vercel.app";
 const cleanSlug = slug.replace(/^\/+|\/+$/g, "");
 const canonicalURL = cleanSlug ? `${SITE_URL}/${cleanSlug}` : SITE_URL;
 
-// OG image por defecto (créala en /public/og-default.jpg — 1200x630)
-const ogImage = `${SITE_URL}/og-default.jpg`;
+// OG image por defecto (créala en /public/og-image.png — 1200x630)
+const ogImage = `${SITE_URL}/og-image.png`;
 
 // Formatear la tasa del BCV para el Schema
 const bcvRateFormatted = bcvDollar?.rate
